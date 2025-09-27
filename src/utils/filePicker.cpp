@@ -46,7 +46,9 @@ void Utils::FilePicker::poll()
     auto resLocal = result;
     mtxResult.unlock();
 
-    resultUserCb(resLocal);
+    if (!resLocal.empty()) {
+      resultUserCb(resLocal);
+    }
 
     isPickerOpen = false;
     hasResult = false;
