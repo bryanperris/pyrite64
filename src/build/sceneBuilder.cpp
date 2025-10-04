@@ -24,6 +24,10 @@ void Build::buildScene(Project::Project &project, const Project::SceneEntry &sce
   uint32_t flags = 0;
   uint32_t objCount = 0;
 
+  if (sc->conf.doClearDepth)flags |= 1 << 0;
+  if (sc->conf.doClearColor)flags |= 1 << 1;
+  if (sc->conf.fbFormat)flags |= 1 << 2;
+
   ctx.fileScene = {};
   ctx.fileScene.write<uint16_t>(sc->conf.fbWidth);
   ctx.fileScene.write<uint16_t>(sc->conf.fbHeight);
