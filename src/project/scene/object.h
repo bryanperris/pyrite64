@@ -7,12 +7,16 @@
 #include <utility>
 #include <vector>
 
+#include "simdjson.h"
+
 namespace Project
 {
+  class Scene;
+
   class Object
   {
     public:
-      Object* parent;
+      Object* parent{nullptr};
 
       std::string name{};
       uint64_t uuid{0};
@@ -20,8 +24,10 @@ namespace Project
 
       std::vector<std::shared_ptr<Object>> children{};
 
-      explicit Object(Object* parent) : parent{parent} {}
+      explicit Object(Object& parent) : parent{&parent} {}
+      Object() = default;
 
       std::string serialize();
+      void deserialize(Scene &scene, const simdjson::simdjson_result<simdjson::dom::element> &doc);
   };
 }

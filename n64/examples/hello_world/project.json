@@ -1,5 +1,4 @@
-{"name":"Hello test"
-,"romName":"hello_world"
-,"pathEmu":"/home/mbeboek/Documents/projects/ares/build/rundir/bin/ares"
-,"pathN64Inst":"/opt/libdragon"
-}
+{"name":"Hello test",
+"romName":"hello_world",
+"pathEmu":"/home/mbeboek/Documents/projects/ares/build/rundir/bin/ares",
+"pathN64Inst":"/opt/libdragon"}

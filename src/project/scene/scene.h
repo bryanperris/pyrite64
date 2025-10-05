@@ -30,7 +30,7 @@ namespace Project
   {
     private:
       int id{};
-      Object root{nullptr};
+      Object root{};
 
     public:
       SceneConf conf{};
@@ -42,7 +42,9 @@ namespace Project
       std::unordered_map<uint32_t, std::shared_ptr<Object>> objectsMap{};
 
       std::shared_ptr<Object> addObject(Object &parent);
+      std::shared_ptr<Object> addObject(Object &parent, std::shared_ptr<Object> obj);
       void removeObject(Object &obj);
+      void removeAllObjects();
 
       std::shared_ptr<Object> getObjectByUUID(uint32_t uuid) {
         if (objectsMap.contains(uuid)) {

@@ -4,6 +4,7 @@
 */
 #pragma once
 #include "simdjson.h"
+#include "color.h"
 
 namespace Utils::JSON
 {
@@ -20,9 +21,11 @@ namespace Utils::JSON
 
       template<typename T>
       void set(const std::string &key, T value) {
-        if (hasData)builder.append_comma();
+        if (hasData) {
+          builder.append_comma();
+          builder.append_raw("\n");
+        }
         builder.append_key_value(key, value);
-        builder.append_raw("\n");
         hasData = true;
       }
 
@@ -46,6 +49,26 @@ namespace Utils::JSON
         builder.escape_and_append_with_quotes(key);
         builder.append_colon();
         builder.append_raw(build.toString());
+        hasData = true;
+      }
+
+      void set(const std::string &key, std::vector<Builder> &build) {
+        if (hasData)builder.append_comma();
+        builder.escape_and_append_with_quotes(key);
+        builder.append_colon();
+        builder.start_array();
+
+        bool needsComma = false;
+        for (auto &child : build) {
+          if (needsComma) {
+            builder.append_comma();
+            builder.append_raw("\n");
+          }
+          builder.append_raw(child.toString());
+          needsComma = true;
+        }
+        builder.end_array();
+
         hasData = true;
       }
 

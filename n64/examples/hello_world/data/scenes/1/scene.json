@@ -1,10 +1,16 @@
 {
-"conf": {"name":"Scene A"
-,"fbWidth":320
-,"fbHeight":240
-,"fbFormat":0
-,"clearColor":[0.28051844239234924,0.5737816691398621,0.9798387289047241,1.0],"doClearColor":true
-,"doClearDepth":true
-},
-"graph": {}
+"conf": {"name":"Scene A",
+"fbWidth":320,
+"fbHeight":240,
+"fbFormat":0,"clearColor":[0.9677419662475586,0.9467204809188843,0.31607699394226074,1.0],
+"doClearColor":true,
+"doClearDepth":true},
+"graph": {"id":0,
+"name":"Scene",
+"uuid":5151655023439922290,"children":[{"id":13,
+"name":"Test 1",
+"uuid":10013922054354267862,"children":[]},
+{"id":14,
+"name":"Test 2",
+"uuid":13070451526232468308,"children":[]}]}
 }

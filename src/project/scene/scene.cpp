@@ -5,7 +5,6 @@
 #include "scene.h"
 #include "object.h"
 #include <SDL3/SDL.h>
-#include "IconsFontAwesome4.h"
 #include "simdjson.h"
 #include "../../utils/json.h"
 #include "../../context.h"
@@ -47,14 +46,17 @@ Project::Scene::Scene(int id_)
 }
 
 std::shared_ptr<Project::Object> Project::Scene::addObject(Object &parent) {
-  auto child = std::make_shared<Object>(&parent);
+  auto child = std::make_shared<Object>(parent);
   child->id = nextUUID++;
   child->name = "New Object ("+std::to_string(child->id)+")";
   child->uuid = Utils::Hash::sha256_64bit(child->name + std::to_string(rand()));
+  return addObject(parent, child);
+}
 
-  parent.children.push_back(child);
-  objectsMap[child->uuid] = child;
-  return child;
+std::shared_ptr<Project::Object> Project::Scene::addObject(Object&parent, std::shared_ptr<Object> obj) {
+  parent.children.push_back(obj);
+  objectsMap[obj->uuid] = obj;
+  return obj;
 }
 
 void Project::Scene::removeObject(Object &obj) {
@@ -67,6 +69,11 @@ void Project::Scene::removeObject(Object &obj) {
     [&obj](const std::shared_ptr<Object> &ref) { return ref->uuid == obj.uuid; }
   );
   objectsMap.erase(obj.uuid);
+}
+
+void Project::Scene::removeAllObjects() {
+  objectsMap.clear();
+  root.children.clear();
 }
 
 void Project::Scene::save()
@@ -102,4 +109,8 @@ void Project::Scene::deserialize(const std::string &data)
     conf.doClearColor = Utils::JSON::readBool(docConf, "doClearColor");
     conf.doClearDepth = Utils::JSON::readBool(docConf, "doClearDepth");
   }
+
+  removeAllObjects();
+  auto docGraph = doc["graph"];
+  root.deserialize(*this, docGraph);
 }

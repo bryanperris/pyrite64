@@ -151,7 +151,7 @@ void Editor::Scene::draw()
 
     if(ImGui::BeginMenu("Build"))
     {
-      if(ImGui::MenuItem(ICON_FA_BUILDING " Build"))Actions::call(Actions::Type::PROJECT_BUILD);
+      if(ImGui::MenuItem(ICON_FA_WRENCH " Build"))Actions::call(Actions::Type::PROJECT_BUILD);
       ImGui::EndMenu();
     }
 

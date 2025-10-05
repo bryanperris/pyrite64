@@ -51,6 +51,18 @@ namespace Utils::JSON
     return (int)(*i);
   }
 
+  inline uint64_t readU64(const simdjson::simdjson_result<simdjson::dom::element> &el, const std::string &key) {
+    auto val = el[key];
+    if (val.error() != simdjson::SUCCESS) {
+      return 0;
+    }
+    auto i = val.get_uint64();
+    if (i.error() != simdjson::SUCCESS) {
+      return 0;
+    }
+    return *i;
+  }
+
   inline float readFloat(const simdjson::simdjson_result<simdjson::dom::element> &el, const std::string &key) {
     auto val = el[key];
     if (val.error() != simdjson::SUCCESS) {
