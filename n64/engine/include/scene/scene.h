@@ -6,7 +6,6 @@
 #include <libdragon.h>
 #include <vector>
 #include "scene/camera.h"
-#include "actor/base.h"
 
 namespace P64
 {
@@ -35,12 +34,12 @@ namespace P64
       char* stringTable{nullptr};
       rspq_block_t *dplObjects{nullptr};
 
-      std::vector<Actor::Base*> actors{};
+      //std::vector<Actor::Base*> actors{};
+
       SceneConf conf{};
       uint16_t id;
 
       void loadScene();
-      void addActor(uint16_t type, Actor::Base::Args *args);
 
     public:
       explicit Scene(uint16_t sceneId);

@@ -5,6 +5,7 @@
 #include "vi/swapChain.h"
 #include "lib/logger.h"
 #include "lib/memory.h"
+#include "lib/matrixManager.h"
 #include "scene/scene.h"
 #include "scene/sceneManager.h"
 #include "scene/globalState.h"

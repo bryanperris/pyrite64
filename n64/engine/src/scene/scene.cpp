@@ -21,7 +21,7 @@ namespace
 }
 
 P64::Scene::Scene(uint16_t sceneId)
-  : actors{}, id{sceneId}
+  : id{sceneId}
 {
   loadScene();
 
@@ -60,21 +60,13 @@ P64::Scene::~Scene()
     surface_free(&fb);
   }
 
-  for(auto actor : actors) {
+  /*for(auto actor : actors) {
     delete actor;
-  }
+  }*/
 
   AudioManager::stopAll();
   MatrixManager::reset();
   AssetManager::reset();
-}
-
-void P64::Scene::addActor(uint16_t type, P64::Actor::Base::Args *args) {
-  /*auto newActor = Actor::createActor(type, args);
-  if(newActor) {
-    actors.push_back(newActor);
-  }*/
-  debugf("@TODO: addActor\n");
 }
 
 void P64::Scene::update(float deltaTime) {
@@ -85,9 +77,9 @@ void P64::Scene::update(float deltaTime) {
     cam.update(deltaTime);
   }
 
-  for(auto actor : actors) {
+  /*for(auto actor : actors) {
     actor->update(deltaTime);
-  }
+  }*/
 
   AudioManager::update();
 
@@ -125,9 +117,9 @@ void P64::Scene::draw(float deltaTime)
     t3d_matrix_push_pos(1);
     rspq_block_run(dplObjects);
 
-    for(auto actor : actors) {
+    /*for(auto actor : actors) {
       actor->draw(deltaTime);
-    }
+    }*/
 
     t3d_matrix_pop(1);
   }

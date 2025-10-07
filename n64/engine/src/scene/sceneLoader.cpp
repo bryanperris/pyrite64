@@ -116,8 +116,8 @@ void P64::Scene::loadScene() {
       switch (objType)
       {
         case OBJ_TYPE_ACTOR: {
-          uint16_t actorType = obj->type & ~OBJ_TYPE_ACTOR_MASK;
-          addActor(actorType, (Actor::Base::Args*)((char*)objFile + 4));
+          //uint16_t actorType = obj->type & ~OBJ_TYPE_ACTOR_MASK;
+          //addActor(actorType, (Actor::Base::Args*)((char*)objFile + 4));
         } break;
 
         // ignore, was processed before already
