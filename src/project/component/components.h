@@ -8,6 +8,7 @@
 
 #include "IconsFontAwesome4.h"
 #include "simdjson.h"
+#include "../../build/sceneContext.h"
 
 namespace Project { class Object; }
 
@@ -25,6 +26,7 @@ namespace Project::Component
   typedef std::shared_ptr<void>(*FuncCompInit)(Object&);
   typedef std::string(*FuncCompSerial)(Entry &entry);
   typedef std::shared_ptr<void>(*FuncCompDeserial)(simdjson::simdjson_result<simdjson::dom::object> &doc);
+  typedef void(*FuncCompBuild)(Object&, Entry &entry, Build::SceneCtx &ctx);
 
   struct CompInfo
   {
@@ -35,6 +37,7 @@ namespace Project::Component
     FuncCompDraw funcDraw{};
     FuncCompSerial funcSerialize{};
     FuncCompDeserial funcDeserialize{};
+    FuncCompBuild funcBuild{};
   };
 
   #define MAKE_COMP(name) \
@@ -44,6 +47,7 @@ namespace Project::Component
       void draw(Object& obj, Entry &entry); \
       std::string serialize(Entry &entry); \
       std::shared_ptr<void> deserialize(simdjson::simdjson_result<simdjson::dom::object> &doc); \
+      void build(Object&, Entry &entry, Build::SceneCtx &ctx); \
     }
 
   MAKE_COMP(Code)
@@ -56,7 +60,8 @@ namespace Project::Component
       .funcInit = Code::init,
       .funcDraw = Code::draw,
       .funcSerialize = Code::serialize,
-      .funcDeserialize = Code::deserialize
+      .funcDeserialize = Code::deserialize,
+      .funcBuild = Code::build
     },
   };
 }

@@ -42,8 +42,13 @@ void Build::buildScene(Project::Project &project, const Project::SceneEntry &sce
     ctx.fileObj.write<uint16_t>(0);
 
     // DATA
-    ctx.fileObj.write<uint32_t>(42);
-    ctx.fileObj.write<uint32_t>(42);
+    for (auto &comp : obj.second->components) {
+      ctx.fileObj.write<uint16_t>(comp.id);
+      if (comp.id > 0 && comp.id < Project::Component::TABLE.size()) {
+        Project::Component::TABLE[comp.id].funcBuild(*obj.second, comp, ctx);
+      }
+    }
+    ctx.fileObj.align(4);
 
     auto size = ctx.fileObj.getPos() - posSize + 2;
 

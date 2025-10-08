@@ -7,6 +7,8 @@
 #include "../../../editor/imgui/helper.h"
 #include "../../../utils/json.h"
 #include "../../../utils/jsonBuilder.h"
+#include "../../../utils/binaryFile.h"
+#include "../../../utils/logger.h"
 
 namespace Project::Component::Code
 {
@@ -33,6 +35,18 @@ namespace Project::Component::Code
     return data;
   }
 
+  void build(Object&, Entry &entry, Build::SceneCtx &ctx)
+  {
+    auto idRes = ctx.codeIdxMapUUID.find(entry.uuid);
+    uint32_t id = 0xDEAD'DEAD;
+    if (idRes == ctx.codeIdxMapUUID.end()) {
+      Utils::Logger::log("Component Code: Script UUID not found: " + std::to_string(entry.uuid), Utils::Logger::LEVEL_ERROR);
+    } else {
+      id = idRes->second;
+    }
+
+    ctx.fileObj.write<uint16_t>(id);
+  }
 
   const char* getter(void* user_data, int idx)
   {

@@ -106,6 +106,9 @@ bool Build::buildProject(std::string path)
 
   Build::SceneCtx sceneCtx{};
 
+  // Scripts
+  buildScripts(project, sceneCtx);
+
   // Scenes
   project.getScenes().reload();
   const auto &scenes = project.getScenes().getEntries();

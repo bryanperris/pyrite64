@@ -10,6 +10,7 @@
 #include "../../context.h"
 #include "../../utils/hash.h"
 #include "../../utils/jsonBuilder.h"
+#include "../../utils/logger.h"
 
 namespace
 {
@@ -32,7 +33,7 @@ std::string Project::SceneConf::serialize() const {
 Project::Scene::Scene(int id_, const std::string &projectPath)
   : id{id_}
 {
-  printf("Load scene %d\n", id);
+  Utils::Logger::log("Loading scene: " + std::to_string(id));
   scenePath = projectPath + "/data/scenes/" + std::to_string(id);
 
   root.id = 0;

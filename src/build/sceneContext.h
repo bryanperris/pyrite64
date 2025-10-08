@@ -13,6 +13,7 @@ namespace Build
   struct SceneCtx
   {
     std::vector<std::string> files{};
+    std::unordered_map<uint64_t, uint32_t> codeIdxMapUUID{};
     Utils::BinaryFile fileScene{};
     Utils::BinaryFile fileObj{};
     StringTable strTable{};
