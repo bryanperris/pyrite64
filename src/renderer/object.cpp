@@ -3,8 +3,11 @@
 * @license MIT
 */
 #include "object.h"
+#include "../context.h"
 
 #include "glm/ext/matrix_transform.hpp"
+
+extern SDL_GPUSampler *texSamplerRepeat;
 
 void Renderer::Object::draw(SDL_GPURenderPass* pass, SDL_GPUCommandBuffer* cmdBuff) {
   if (!mesh) return;
@@ -18,5 +21,21 @@ void Renderer::Object::draw(SDL_GPURenderPass* pass, SDL_GPUCommandBuffer* cmdBu
   }
 
   SDL_PushGPUVertexUniformData(cmdBuff, 1, &uniform, sizeof(uniform));
+
+  SDL_GPUTexture *tex{nullptr};
+  auto assets = ctx.project->getAssets().getEntries();
+  for (auto &asset : assets) {
+    if (asset.type == Project::AssetManager::FileType::IMAGE) {
+      tex = asset.texture->getGPUTex();
+      break;
+    }
+  }
+
+  SDL_GPUTextureSamplerBinding bind{
+    .texture = tex,
+    .sampler = texSamplerRepeat
+  };
+  SDL_BindGPUFragmentSamplers(pass, 0, &bind, 1);
+
   mesh->draw(pass);
 }

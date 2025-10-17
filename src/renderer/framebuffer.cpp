@@ -23,6 +23,7 @@ Renderer::Framebuffer::Framebuffer()
 
   depthTargetInfo.texture = nullptr;
   depthTargetInfo.load_op = SDL_GPU_LOADOP_CLEAR;
+  depthTargetInfo.clear_depth = 1;
   depthTargetInfo.store_op = SDL_GPU_STOREOP_STORE;
   depthTargetInfo.stencil_load_op = SDL_GPU_LOADOP_CLEAR;
   depthTargetInfo.stencil_store_op = SDL_GPU_STOREOP_STORE;

@@ -32,7 +32,7 @@ Editor::Viewport3D::Viewport3D()
 
   mesh = std::make_shared<Renderer::Mesh>();
   mesh->vertices.clear();
-  Utils::Mesh::generateCube(*mesh);
+  Utils::Mesh::generateCube(*mesh, 2.0f);
   mesh->recreate(*ctx.scene);
   obj.setMesh(mesh);
   obj2.setMesh(mesh);

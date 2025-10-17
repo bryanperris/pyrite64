@@ -8,5 +8,5 @@ namespace Renderer { class Mesh; }
 
 namespace Utils::Mesh
 {
-  void generateCube(Renderer::Mesh &mesh);
+  void generateCube(Renderer::Mesh &mesh, float size);
 }

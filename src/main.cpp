@@ -26,9 +26,10 @@
 #include "utils/proc.h"
 
 constinit Context ctx{};
+constinit SDL_GPUSampler *texSamplerRepeat{nullptr};
 
 namespace {
-  constinit SDL_GPUSampler *texSamplerRepeat{nullptr};
+
   constinit std::future<void> futureBuildRun{};
 
   bool isBuildOrRunning() {

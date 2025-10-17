@@ -21,12 +21,9 @@ namespace Renderer
 
     public:
       std::vector<Renderer::Vertex> vertices{};
+      std::vector<uint16_t> indices{};
 
       void recreate(Renderer::Scene &scene);
-
-      void addBinding(SDL_GPUBufferBinding &binding) const {
-        if (vertBuff)vertBuff->addBinding(binding);
-      }
 
       void draw(SDL_GPURenderPass* pass);
 

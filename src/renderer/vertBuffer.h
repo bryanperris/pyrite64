@@ -15,22 +15,36 @@ namespace Renderer
   {
     private:
       SDL_GPUDevice* gpuDevice{nullptr};
+
       SDL_GPUBuffer* buffer{nullptr};
       SDL_GPUTransferBuffer* bufferTrans{nullptr};
-      size_t currByteSize{0};
+
+      SDL_GPUBuffer* bufferIdx{nullptr};
+      SDL_GPUTransferBuffer* bufferIdxTrans{nullptr};
+
+      size_t currVertByteSize{0};
+      size_t currIdxByteSize{0};
       bool needsUpload{false};
 
+      void resize(uint32_t sizeVert, uint32_t sizeIndex);
+
     public:
-      VertBuffer(size_t maxCount, SDL_GPUDevice* device);
+      VertBuffer(SDL_GPUDevice* device);
       ~VertBuffer();
 
-      void setData(const std::vector<Vertex> &vertices);
+      void setData(
+        const std::vector<Vertex> &vertices,
+        const std::vector<uint16_t> &indices
+      );
 
       void upload(SDL_GPUCopyPass& pass);
 
-      void addBinding(SDL_GPUBufferBinding &binding) const {
-        binding.buffer = buffer;
-        binding.offset = 0;
+      void addBindings(SDL_GPUBufferBinding binding[]) const {
+        binding[0].buffer = buffer;
+        binding[0].offset = 0;
+
+        binding[1].buffer = bufferIdx;
+        binding[1].offset = 0;
       }
   };
 }

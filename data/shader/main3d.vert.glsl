@@ -6,6 +6,7 @@ layout (location = 2) in vec4 inColor;
 layout (location = 3) in vec2 inUV;
 
 layout (location = 0) out vec4 v_color;
+layout (location = 1) out vec2 v_uv;
 
 // set=3 in fragment shader
 layout(std140, set = 1, binding = 0) uniform UniformGlobal {
@@ -23,4 +24,5 @@ void main()
   gl_Position = matMVP * vec4(inPosition, 1.0);
 
   v_color = inColor;// * vec4(test, 1.0f);
+  v_uv = inUV;
 }

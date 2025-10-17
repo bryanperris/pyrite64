@@ -30,7 +30,7 @@ Renderer::Scene::Scene()
   pipelineInfo.primitive_type = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST;
 
   // Depth
-  pipelineInfo.depth_stencil_state.compare_op = SDL_GPU_COMPAREOP_GREATER;
+  pipelineInfo.depth_stencil_state.compare_op = SDL_GPU_COMPAREOP_LESS;
   pipelineInfo.depth_stencil_state.enable_depth_test = true;
   pipelineInfo.depth_stencil_state.enable_depth_write = true;
   pipelineInfo.target_info.has_depth_stencil_target = true;
