@@ -41,6 +41,7 @@ void Build::buildScene(Project::Project &project, const Project::SceneEntry &sce
     auto &obj = *objEntry.second;
     ctx.fileObj.write<uint16_t>(0); // @TODO type
     ctx.fileObj.write<uint16_t>(obj.id);
+    ctx.fileObj.write(obj.pos);
 
     // DATA
     for (auto &comp : obj.components) {

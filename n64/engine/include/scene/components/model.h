@@ -45,11 +45,16 @@ namespace P64::Comp
     }
 
     static void update(Object& obj, Model* data) {
-
+      auto mat = data->matFP.getNext();
+      t3d_mat4fp_from_srt_euler(mat,
+        {0.01f, 0.01f, 0.01f},
+        {0,0,0},
+        obj.pos
+      );
     }
 
     static void draw(Object& obj, Model* data) {
-      t3d_matrix_set(data->matFP.getNext(), true);
+      t3d_matrix_set(data->matFP.get(), true);
       rspq_block_run(data->model->userBlock);
       //t3d_model_draw(data->model);
       //char* funcData = (char*)data + sizeof(Code);

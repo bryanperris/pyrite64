@@ -24,6 +24,7 @@ namespace {
   struct ObjectEntry {
     uint16_t type;
     uint16_t id;
+    fm_vec3_t pos;
     // data follows
   };
 
@@ -112,6 +113,7 @@ void P64::Scene::loadScene() {
           Object* obj = new(objMem) Object();
           obj->id = objEntry->id;
           obj->compCount = compCount;
+          obj->pos = objEntry->pos;
 
           ptrIn = objFile + sizeof(ObjectEntry);
           while(ptrIn[1] != 0)

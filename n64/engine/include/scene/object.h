@@ -22,8 +22,10 @@ namespace P64
       ~Object();
 
       uint16_t id{};
-
       uint16_t compCount{0};
+
+      // extra data, is overlapping with component data if unused
+      fm_vec3_t pos{};
 
       // component references, this is then also followed by a buffer for the actual data
       // the object allocation logic keeps extra space to fit everything

@@ -14,10 +14,18 @@ namespace P64::Script::C3AF5D870988CBC0
   void update(Object& obj, Data *data)
   {
     auto pressed = joypad_get_buttons_pressed(JOYPAD_PORT_1);
+    auto held = joypad_get_buttons(JOYPAD_PORT_1);
     if (pressed.b) {
       debugf("Arg: Scene-Id: %ld\n", data->sceneId);
       SceneManager::load(data->sceneId);
     }
+
+    float speed = 0.125f;
+    auto &cam = SceneManager::getCurrent().getCamera();
+    if (held.d_up)cam.move({0,0,-speed});
+    if (held.d_down)cam.move({0,0,speed});
+    if (held.d_left)cam.move({-speed,0,0});
+    if (held.d_right)cam.move({speed,0,0});
 
     data->speed += 0.1f;
   }

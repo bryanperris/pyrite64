@@ -11,6 +11,8 @@
 #include <cstdint>
 
 #include "color.h"
+#include "glm/vec3.hpp"
+#include "glm/vec4.hpp"
 
 namespace Utils
 {
@@ -60,6 +62,19 @@ namespace Utils
 
       void write(const std::string &str) {
         writeChars(str.c_str(), str.size());
+      }
+
+      void write(const glm::vec3 &v) {
+        write(v.x);
+        write(v.y);
+        write(v.z);
+      }
+
+      void write(const glm::vec4 &v) {
+        write(v.x);
+        write(v.y);
+        write(v.z);
+        write(v.w);
       }
 
       void writeRGBA(const Color &color) {
