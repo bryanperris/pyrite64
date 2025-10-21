@@ -10,6 +10,7 @@
 #include "../../../renderer/framebuffer.h"
 #include "../../../renderer/mesh.h"
 #include "../../../renderer/object.h"
+#include "../../../utils/container.h"
 
 namespace Editor
 {
@@ -23,8 +24,7 @@ namespace Editor
 
       bool isMouseHover{false};
       bool isMouseDown{false};
-      bool needsSample{false};
-      uint32_t pickedObjID{0};
+      Utils::RequestVal<uint32_t> pickedObjID{};
 
       float vpOffsetY{};
       glm::vec2 mousePos{};

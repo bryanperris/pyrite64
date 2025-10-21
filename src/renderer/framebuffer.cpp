@@ -139,7 +139,7 @@ uint32_t Renderer::Framebuffer::readObjectID(uint32_t x, uint32_t y) {
   }
 
   auto res = *static_cast<uint32_t*>(startGenericRead(x, y));
-  //printf("ID: %08X\n", res);
+  printf("ID: %08X\n", res);
   endGenericRead();
   return res;
 }

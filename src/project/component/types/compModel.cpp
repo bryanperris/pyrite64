@@ -116,7 +116,7 @@ namespace Project::Component::Model
 
 
     bool isSelected = ctx.selObjectUUID == obj.uuid;
-    //if (ctx.selObjectUUID == obj.uuid)
+    if (isSelected)
     {
       auto center = obj.pos + data.aabb.getCenter();
       auto halfExt = data.aabb.getHalfExtend() * obj.scale * 128.0f;

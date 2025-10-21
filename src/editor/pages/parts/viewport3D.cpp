@@ -102,10 +102,8 @@ void Editor::Viewport3D::onCopyPass(SDL_GPUCommandBuffer* cmdBuff, SDL_GPUCopyPa
 }
 
 void Editor::Viewport3D::onPostRender(Renderer::Scene &renderScene) {
-  if (needsSample)
-  {
-    pickedObjID = fb.readObjectID(mousePosClick.x, mousePosClick.y);
-    needsSample = false;
+  if (pickedObjID.isRequested()) {
+    pickedObjID.setResult(fb.readObjectID(mousePosClick.x, mousePosClick.y));
   }
 }
 
@@ -113,9 +111,8 @@ void Editor::Viewport3D::draw() {
   camera.update();
   fb.setClearColor(ctx.project->getScenes().getLoadedScene()->conf.clearColor);
 
-  if (pickedObjID) {
-    ctx.selObjectUUID = pickedObjID;
-    pickedObjID = 0;
+  if (pickedObjID.hasResult()) {
+    ctx.selObjectUUID = pickedObjID.consume();
   }
 
   auto currSize = ImGui::GetContentRegionAvail();
@@ -143,8 +140,8 @@ void Editor::Viewport3D::draw() {
   bool newMouseDown = ImGui::IsMouseDown(ImGuiMouseButton_Middle) || ImGui::IsMouseDown(ImGuiMouseButton_Right);
   bool isShiftDown = ImGui::GetIO().KeyShift;
 
-  if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-    needsSample = true;
+  if (isMouseHover && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+    pickedObjID.request();
     mousePosClick = mousePos;
   }
 
