@@ -107,6 +107,7 @@ namespace Project::Component::Model
     if (!data.obj3DLoaded) {
       auto asset = ctx.project->getAssets().getEntryByUUID(data.modelUUID);
       if (asset && asset->mesh3D) {
+        asset->mesh3D->recreate(*ctx.scene);
         data.aabb = asset->mesh3D->getAABB();
         data.obj3D.setMesh(asset->mesh3D);
       }

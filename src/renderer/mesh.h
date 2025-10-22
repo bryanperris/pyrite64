@@ -26,7 +26,7 @@ namespace Renderer
       std::vector<Renderer::LineVertex> vertLines{};
       std::vector<uint16_t> indices{};
 
-      void recreate(Renderer::Scene &scene);
+      void recreate(Renderer::Scene &scene, bool clearData = true);
 
       void draw(SDL_GPURenderPass* pass);
 

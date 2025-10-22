@@ -67,5 +67,9 @@ namespace Renderer
         binding[1].buffer = bufferIdx;
         binding[1].offset = 0;
       }
+
+      uint32_t getIndexCount() const {
+        return static_cast<uint32_t>(currIdxByteSize / sizeof(uint16_t));
+      }
   };
 }

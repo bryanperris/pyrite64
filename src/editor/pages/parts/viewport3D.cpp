@@ -34,12 +34,6 @@ Editor::Viewport3D::Viewport3D()
     onPostRender(renderScene);
   });
 
-  auto meshAsset = ctx.project->getAssets().getByName("model.glb");
-  meshAsset->mesh3D->recreate(*ctx.scene);
-
-  auto meshAssetB = ctx.project->getAssets().getByName("box.glb");
-  meshAssetB->mesh3D->recreate(*ctx.scene);
-
   meshGrid = std::make_shared<Renderer::Mesh>();
   Utils::Mesh::generateGrid(*meshGrid, 10);
   meshGrid->recreate(*ctx.scene);
