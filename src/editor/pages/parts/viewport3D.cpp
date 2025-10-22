@@ -116,6 +116,7 @@ void Editor::Viewport3D::draw() {
   if (pickedObjID.hasResult()) {
     ctx.selObjectUUID = pickedObjID.consume();
   }
+  auto obj = scene->getObjectByUUID(ctx.selObjectUUID);
 
   auto currSize = ImGui::GetContentRegionAvail();
   auto currPos = ImGui::GetWindowPos();
@@ -143,7 +144,9 @@ void Editor::Viewport3D::draw() {
   bool newMouseDown = ImGui::IsMouseDown(ImGuiMouseButton_Middle) || mouseHeldRight;
   bool isShiftDown = ImGui::GetIO().KeyShift;
 
-  if (!ImGuizmo::IsOver() && isMouseHover && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+  bool overGizmo = obj && ImGuizmo::IsOver();
+
+  if (!overGizmo && isMouseHover && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
     pickedObjID.request();
     mousePosClick = mousePos;
   }
@@ -169,7 +172,7 @@ void Editor::Viewport3D::draw() {
     }
     isMouseDown = newMouseDown;
   }
-  ImGui::Text("Viewport: %f | %f | %08X", mousePos.x, mousePos.y, pickedObjID);
+  ImGui::Text("Viewport: %f | %f | %08X", mousePos.x, mousePos.y, ctx.selObjectUUID);
 
   auto dragDelta = mousePos - mousePosStart;
   if (isMouseDown) {
@@ -200,7 +203,6 @@ void Editor::Viewport3D::draw() {
   ImGuizmo::SetDrawlist(draw_list);
   ImGuizmo::SetRect(currPos.x, currPos.y, currSize.x, currSize.y);
 
-  auto obj = scene->getObjectByUUID(ctx.selObjectUUID);
   if (obj) {
     glm::mat4 gizmoMat{};
     glm::vec3 skew{0,0,0};

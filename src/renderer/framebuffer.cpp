@@ -135,11 +135,11 @@ glm::u8vec4 Renderer::Framebuffer::readColor(uint32_t x, uint32_t y)
 
 uint32_t Renderer::Framebuffer::readObjectID(uint32_t x, uint32_t y) {
   if (x >= texInfo.width || y >= texInfo.height) {
-    return 0;
+    return 1;
   }
 
   auto res = *static_cast<uint32_t*>(startGenericRead(x, y));
-  printf("ID: %08X\n", res);
+  //printf("ID: %08X\n", res);
   endGenericRead();
   return res;
 }
