@@ -17,7 +17,16 @@ namespace Renderer
       SDL_GPUShader* shaderFrag{nullptr};
 
     public:
-      Shader(const std::string& name, SDL_GPUDevice* device);
+      struct Config
+      {
+        const std::string& name{};
+        uint32_t vertUboCount{0};
+        uint32_t fragUboCount{0};
+        uint32_t vertTexCount{0};
+        uint32_t fragTexCount{0};
+      };
+
+      Shader(SDL_GPUDevice* device, const Config &conf);
       ~Shader();
 
       void setToPipeline(SDL_GPUGraphicsPipelineCreateInfo &pipelineInfo) const {

@@ -20,8 +20,20 @@ namespace
 
 Renderer::Scene::Scene()
 {
-  shaderN64 = std::make_unique<Shader>("n64", ctx.gpu);
-  shaderLines = std::make_unique<Shader>("lines", ctx.gpu);
+  shaderN64 = std::make_unique<Shader>(ctx.gpu, Shader::Config{
+    .name = "n64",
+    .vertUboCount = 2,
+    .fragUboCount = 1,
+    .vertTexCount = 2,
+    .fragTexCount = 2,
+  });
+  shaderLines = std::make_unique<Shader>(ctx.gpu, Shader::Config{
+    .name = "lines",
+    .vertUboCount = 1,
+    .fragUboCount = 0,
+    .vertTexCount = 0,
+    .fragTexCount = 0,
+  });
 
   pipelineN64 = std::make_unique<Pipeline>(Pipeline::Info{
     .shader = *shaderN64,

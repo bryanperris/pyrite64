@@ -7,11 +7,11 @@
 #include "SDL3/SDL_gpu.h"
 #include "SDL3/SDL_iostream.h"
 
-Renderer::Shader::Shader(const std::string &name, SDL_GPUDevice* device)
+Renderer::Shader::Shader(SDL_GPUDevice* device, const Config &conf)
   : gpuDevice{device}
 {
-  std::string pathVert = "data/shader/" + name + ".vert.spv";
-  std::string pathFrag = "data/shader/" + name + ".frag.spv";
+  std::string pathVert = "data/shader/" + conf.name + ".vert.spv";
+  std::string pathFrag = "data/shader/" + conf.name + ".frag.spv";
 
   size_t vertexCodeSize;
   void* vertexCode = SDL_LoadFile(pathVert.c_str(), &vertexCodeSize);
@@ -25,10 +25,10 @@ Renderer::Shader::Shader(const std::string &name, SDL_GPUDevice* device)
   vertexInfo.entrypoint = "main";
   vertexInfo.format = SDL_GPU_SHADERFORMAT_SPIRV;
   vertexInfo.stage = SDL_GPU_SHADERSTAGE_VERTEX;
-  vertexInfo.num_samplers = 0;
+  vertexInfo.num_samplers = conf.vertTexCount;
   vertexInfo.num_storage_buffers = 0;
   vertexInfo.num_storage_textures = 0;
-  vertexInfo.num_uniform_buffers = 2;
+  vertexInfo.num_uniform_buffers = conf.vertUboCount;
   shaderVert = SDL_CreateGPUShader(device, &vertexInfo);
 
   // create the fragment shader
@@ -38,10 +38,10 @@ Renderer::Shader::Shader(const std::string &name, SDL_GPUDevice* device)
   fragmentInfo.entrypoint = "main";
   fragmentInfo.format = SDL_GPU_SHADERFORMAT_SPIRV;
   fragmentInfo.stage = SDL_GPU_SHADERSTAGE_FRAGMENT;
-  fragmentInfo.num_samplers = 2;
+  fragmentInfo.num_samplers = conf.fragTexCount;
   fragmentInfo.num_storage_buffers = 0;
   fragmentInfo.num_storage_textures = 0;
-  fragmentInfo.num_uniform_buffers = 1;
+  fragmentInfo.num_uniform_buffers = conf.fragUboCount;
 
   shaderFrag = SDL_CreateGPUShader(gpuDevice, &fragmentInfo);
 
