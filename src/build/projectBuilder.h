@@ -20,6 +20,10 @@ namespace Build
   bool buildFontAssets(Project::Project &project, SceneCtx &sceneCtx);
   bool buildTextureAssets(Project::Project &project, SceneCtx &sceneCtx);
   bool buildAudioAssets(Project::Project &project, SceneCtx &sceneCtx);
+  bool buildPrefabAssets(Project::Project &project, SceneCtx &sceneCtx);
 
   bool buildProject(const std::string &path);
+
+  // individual parts
+  void writeObject(SceneCtx &ctx, Project::Object &obj, bool savePrefabItself = false);
 }

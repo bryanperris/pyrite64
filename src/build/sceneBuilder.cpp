@@ -24,60 +24,60 @@ namespace
   constexpr uint32_t FLAG_CLR_DEPTH = 1 << 0;
   constexpr uint32_t FLAG_CLR_COLOR = 1 << 1;
   constexpr uint32_t FLAG_SCR_32BIT = 1 << 2;
+}
 
-  void writeObject(Build::SceneCtx &ctx, Project::Object &obj)
+void Build::writeObject(Build::SceneCtx &ctx, Project::Object &obj, bool savePrefabItself)
+{
+  auto srcObj = &obj;
+  if(!savePrefabItself && obj.isPrefabInstance())
   {
-    auto srcObj = &obj;
-    if(obj.isPrefabInstance())
-    {
-      auto prefab = ctx.project->getAssets().getPrefabByUUID(srcObj->uuidPrefab.value);
-      if(prefab)srcObj = &prefab->obj;
+    auto prefab = ctx.project->getAssets().getPrefabByUUID(srcObj->uuidPrefab.value);
+    if(prefab)srcObj = &prefab->obj;
+  }
+
+  uint16_t objFlags = 0;
+  if(obj.enabled)objFlags |= P64::ObjectFlags::ACTIVE;
+  if(obj.isGroup)objFlags |= P64::ObjectFlags::IS_GROUP;
+
+  ctx.fileObj.write<uint16_t>(objFlags); // @TODO type
+  ctx.fileObj.write<uint16_t>(obj.id);
+  ctx.fileObj.write<uint16_t>(obj.parent ? obj.parent->id : 0);
+  ctx.fileObj.write<uint16_t>(0); // padding
+  ctx.fileObj.write(srcObj->pos.resolve(obj.propOverrides));
+  ctx.fileObj.write(srcObj->scale.resolve(obj.propOverrides));
+
+  auto &rot = srcObj->rot.resolve(obj.propOverrides);
+  uint32_t quatQuant = T3D::Quantizer::quatTo32Bit({rot.x, rot.y, rot.z, rot.w});
+  ctx.fileObj.write(quatQuant);
+
+  // DATA
+  for (auto &comp : srcObj->components) {
+    auto compPos = ctx.fileObj.getPos();
+    ctx.fileObj.skip(2);
+    ctx.fileObj.skip(2); // flags (@TODO)
+
+    if (comp.id >= 0 && comp.id < Project::Component::TABLE.size()) {
+      Project::Component::TABLE[comp.id].funcBuild(obj, comp, ctx);
+    } else {
+      Utils::Logger::log("Component ID not found: " + std::to_string(comp.id), Utils::Logger::LEVEL_ERROR);
+      assert(false);
     }
 
-    uint16_t objFlags = 0;
-    if(obj.enabled)objFlags |= P64::ObjectFlags::ACTIVE;
-    if(obj.isGroup)objFlags |= P64::ObjectFlags::IS_GROUP;
+    ctx.fileObj.align(4);
+    auto size = (ctx.fileObj.getPos() - compPos) / 4;
+    assert(size < 256);
 
-    ctx.fileObj.write<uint16_t>(objFlags); // @TODO type
-    ctx.fileObj.write<uint16_t>(obj.id);
-    ctx.fileObj.write<uint16_t>(obj.parent ? obj.parent->id : 0);
-    ctx.fileObj.write<uint16_t>(0); // padding
-    ctx.fileObj.write(srcObj->pos.resolve(obj.propOverrides));
-    ctx.fileObj.write(srcObj->scale.resolve(obj.propOverrides));
+    ctx.fileObj.posPush(compPos);
+    ctx.fileObj.write<uint8_t>(comp.id);
+    ctx.fileObj.write<uint8_t>(size);
+    ctx.fileObj.posPop();
+    //ctx.fileObj.write<uint16_t>(comp.id);
+  }
 
-    auto &rot = srcObj->rot.resolve(obj.propOverrides);
-    uint32_t quatQuant = T3D::Quantizer::quatTo32Bit({rot.x, rot.y, rot.z, rot.w});
-    ctx.fileObj.write(quatQuant);
+  ctx.fileObj.write<uint32_t>(0);
 
-    // DATA
-    for (auto &comp : srcObj->components) {
-      auto compPos = ctx.fileObj.getPos();
-      ctx.fileObj.skip(2);
-      ctx.fileObj.skip(2); // flags (@TODO)
-
-      if (comp.id >= 0 && comp.id < Project::Component::TABLE.size()) {
-        Project::Component::TABLE[comp.id].funcBuild(obj, comp, ctx);
-      } else {
-        Utils::Logger::log("Component ID not found: " + std::to_string(comp.id), Utils::Logger::LEVEL_ERROR);
-        assert(false);
-      }
-
-      ctx.fileObj.align(4);
-      auto size = (ctx.fileObj.getPos() - compPos) / 4;
-      assert(size < 256);
-
-      ctx.fileObj.posPush(compPos);
-      ctx.fileObj.write<uint8_t>(comp.id);
-      ctx.fileObj.write<uint8_t>(size);
-      ctx.fileObj.posPop();
-      //ctx.fileObj.write<uint16_t>(comp.id);
-    }
-
-    ctx.fileObj.write<uint32_t>(0);
-
-    for (const auto &child : obj.children) {
-      writeObject(ctx, *child);
-    }
+  for (const auto &child : obj.children) {
+    writeObject(ctx, *child, savePrefabItself);
   }
 }
 
@@ -100,7 +100,7 @@ void Build::buildScene(Project::Project &project, const Project::SceneEntry &sce
   ctx.fileObj = {};
   auto &rootObj = sc->getRootObject();
   for (const auto &child : rootObj.children) {
-    writeObject(ctx, *child);
+    writeObject(ctx, *child, false);
   }
 
   ctx.fileObj.writeToFile(fsDataPath / fileNameObj);

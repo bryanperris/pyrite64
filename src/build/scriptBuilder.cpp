@@ -56,7 +56,7 @@ void Build::buildScripts(Project::Project &project, SceneCtx &sceneCtx)
 
     sceneCtx.codeIdxMapUUID[script.uuid] = idx;
 
-    Utils::Logger::log("Script: " + uuidStr + " -> " + std::to_string(idx));
+    //Utils::Logger::log("Script: " + uuidStr + " -> " + std::to_string(idx));
     ++idx;
   }
 
@@ -112,8 +112,7 @@ void Build::buildGlobalScripts(Project::Project &project, SceneCtx &sceneCtx)
       pair.second += "  " + uuidStr + "::" + funcName + "();\n";
 
       //sceneCtx.globalFuncIdxMapUUID[script.uuid][hookIdx] = funcName;
-
-      Utils::Logger::log("Global Script: " + uuidStr + " -> " + funcName);
+      //Utils::Logger::log("Global Script: " + uuidStr + " -> " + funcName);
     }
   }
 

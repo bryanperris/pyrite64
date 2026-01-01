@@ -54,15 +54,19 @@ namespace
   wav64_t* wav64Load(const char* path) {
     return wav64_load(path, nullptr);
   }
+  void* assetLoad(const char* path) {
+    return asset_load(path, nullptr);
+  }
 
   AssetHandler assetHandler[] = {
-    [AssetType::UNKNOWN]  = {nullptr,                  nullptr                 },
-    [AssetType::IMAGE]    = {(LoadFunc)sprite_load,    (FreeFunc)sprite_free   },
-    [AssetType::AUDIO]    = {(LoadFunc)wav64Load,      (FreeFunc)wav64_close   },
-    [AssetType::FONT]     = {(LoadFunc)rdpq_font_load, (FreeFunc)rdpq_font_free},
-    [AssetType::MODEL_3D] = {(LoadFunc)t3d_model_load, (FreeFunc)t3d_model_free},
-    [AssetType::CODE]     = {nullptr,                  nullptr                 },
-    [AssetType::PREFAB]   = {nullptr,                  nullptr                 },
+    [AssetType::UNKNOWN]     = {nullptr,                  nullptr                 },
+    [AssetType::IMAGE]       = {(LoadFunc)sprite_load,    (FreeFunc)sprite_free   },
+    [AssetType::AUDIO]       = {(LoadFunc)wav64Load,      (FreeFunc)wav64_close   },
+    [AssetType::FONT]        = {(LoadFunc)rdpq_font_load, (FreeFunc)rdpq_font_free},
+    [AssetType::MODEL_3D]    = {(LoadFunc)t3d_model_load, (FreeFunc)t3d_model_free},
+    [AssetType::CODE_OBJ]    = {nullptr,                  nullptr                 },
+    [AssetType::CODE_GLOBAL] = {nullptr,                  nullptr                 },
+    [AssetType::PREFAB]      = {(LoadFunc)assetLoad,      (FreeFunc)free          },
   };
 
   constinit AssetTable* assetTable{nullptr};

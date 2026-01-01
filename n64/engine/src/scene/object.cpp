@@ -19,5 +19,8 @@ P64::Object::~Object()
 
 void P64::Object::remove()
 {
+  if(flags & ObjectFlags::PENDING_REMOVE)return;
+  flags |= ObjectFlags::PENDING_REMOVE;
+  flags &= ~ObjectFlags::ACTIVE;
   SceneManager::getCurrent().removeObject(*this);
 }

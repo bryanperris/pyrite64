@@ -4,6 +4,7 @@
 */
 #pragma once
 #include <libdragon.h>
+#include "assets/assetManager.h"
 
 namespace P64::Audio
 {

@@ -133,6 +133,11 @@ bool Build::buildProject(const std::string &path)
     return false;
   }
 
+  if(!buildPrefabAssets(project, sceneCtx)) {
+    Utils::Logger::log("Prefab Asset build failed!", Utils::Logger::LEVEL_ERROR);
+    return false;
+  }
+
   // Makefile
   auto makefile = Utils::replaceAll(
     Utils::FS::loadTextFile("data/build/baseMakefile.mk"),
@@ -184,7 +189,7 @@ bool Build::assetBuildNeeded(const Project::AssetManager::Entry &asset, const st
   auto ageSrc = Utils::FS::getFileAge(asset.path);
   auto ageDst = Utils::FS::getFileAge(outPath);
   if(ageSrc < ageDst) {
-    Utils::Logger::log("Skipping Asset (up to date): " + asset.outPath);
+    //Utils::Logger::log("Skipping Asset (up to date): " + asset.outPath);
     return false;
   }
   Utils::Logger::log("Building Asset: " + asset.path);

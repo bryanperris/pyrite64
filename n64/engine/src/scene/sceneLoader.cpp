@@ -57,6 +57,91 @@ void P64::Scene::loadSceneConfig()
   }
 }
 
+P64::Object* P64::Scene::loadObject(uint8_t* &objFile, std::function<void(Object&)> callback)
+{
+  ObjectEntry* objEntry = (ObjectEntry*)objFile;
+
+  // pre-scan components to get total allocation size
+  uint32_t allocSize = sizeof(Object);
+
+  // some alignment logic below relies on an at a minimum 4-byte size
+  static_assert(sizeof(Object) % 4 == 0);
+  static_assert(sizeof(Object::CompRef) % 4 == 0);
+
+  auto ptrIn = objFile + sizeof(ObjectEntry);
+  uint32_t compCount = 0;
+  uint32_t compDataSize = 0;
+  while(ptrIn[1] != 0) {
+    auto compId = ptrIn[0];
+    auto argSize = ptrIn[1] * 4;
+
+    const auto &compDef = COMP_TABLE[compId];
+    assertf(compDef.getAllocSize != nullptr, "Component %d unknown!", compId);
+    compDataSize += Math::alignUp(compDef.getAllocSize(ptrIn + 4), DATA_ALIGN);
+    allocSize += sizeof(Object::CompRef);
+
+    ptrIn += argSize;
+    ++compCount;
+  }
+
+  // component data must be 8-byte aligned, GCC tries to be smart
+  // and some structs cuse 64-bit writes to members.
+  // if it is misaligned, add spacing after the comp table
+  uint32_t offsetData = (sizeof(Object::CompRef) * compCount);
+  if(allocSize % 8 != 0) {
+    compDataSize += 4;
+    offsetData += 4;
+  }
+
+  allocSize += compDataSize;
+
+  //debugf("Allocating object %d | comps: %d | size: %lu bytes\n", objEntry->id, compCount, allocSize);
+
+  void* objMem = memalign(DATA_ALIGN, allocSize); // @TODO: custom allocator
+
+  auto objCompTablePtr = (Object::CompRef*)((char*)objMem + sizeof(Object));
+  auto objCompDataPtr = (char*)(objCompTablePtr) + offsetData;
+
+  Object* obj = new(objMem) Object();
+  obj->id = objEntry->id;
+  obj->group = objEntry->group;
+  obj->flags = objEntry->flags;
+  obj->compCount = compCount;
+  obj->pos = objEntry->pos;
+  obj->scale = objEntry->scale;
+  obj->rot = Math::unpackQuat(objEntry->packedRot);
+
+  if(callback)callback(*obj);
+
+  ptrIn = objFile + sizeof(ObjectEntry);
+  while(ptrIn[1] != 0)
+  {
+    uint8_t compId = ptrIn[0];
+    uint8_t argSize = ptrIn[1] * 4;
+
+    const auto &compDef = COMP_TABLE[compId];
+    // debugf("Alloc: comp %d (arg: %d)\n", compId, argSize);
+
+    objCompTablePtr->type = compId;
+    objCompTablePtr->flags = 0;
+    objCompTablePtr->offset = objCompDataPtr - (char*)obj;
+    ++objCompTablePtr;
+
+    compDef.initDel(*obj, objCompDataPtr, ptrIn + 4);
+    objCompDataPtr += Math::alignUp(compDef.getAllocSize(ptrIn + 4), 8);
+    ptrIn += argSize;
+  }
+
+  /*debugf("Object: id=%d | group=%d | flags=0x%04X | pos=(%f,%f,%f) | comp: %d\n",
+    obj->id, obj->group, obj->flags,
+    (double)obj->pos.x, (double)obj->pos.y, (double)obj->pos.z,
+    compCount
+  );*/
+
+  objFile = ptrIn + 4;
+  return obj;
+}
+
 void P64::Scene::loadScene() {
   scenePath[sizeof(scenePath)-3] = '0' + id;
   scenePath[sizeof(scenePath)-2] = '\0';
@@ -68,85 +153,10 @@ void P64::Scene::loadScene() {
   {
     auto *objFileStart = (uint8_t*)(loadSubFile('o'));
 
-    auto *objFile = objFileStart;
-
     // now process all other objects
-    objFile = objFileStart;
-    for(uint32_t i=0; i<conf.objectCount; ++i)
-    {
-      ObjectEntry* objEntry = (ObjectEntry*)objFile;
-
-      // pre-scan components to get total allocation size
-      uint32_t allocSize = sizeof(Object);
-
-      // some alignment logic below relies on an at a minimum 4-byte size
-      static_assert(sizeof(Object) % 4 == 0);
-      static_assert(sizeof(Object::CompRef) % 4 == 0);
-
-      auto ptrIn = objFile + sizeof(ObjectEntry);
-      uint32_t compCount = 0;
-      uint32_t compDataSize = 0;
-      while(ptrIn[1] != 0) {
-        auto compId = ptrIn[0];
-        auto argSize = ptrIn[1] * 4;
-
-        const auto &compDef = COMP_TABLE[compId];
-        assertf(compDef.getAllocSize != nullptr, "Component %d unknown!", compId);
-        compDataSize += Math::alignUp(compDef.getAllocSize(ptrIn + 4), DATA_ALIGN);
-        allocSize += sizeof(Object::CompRef);
-
-        ptrIn += argSize;
-        ++compCount;
-      }
-
-      // component data must be 8-byte aligned, GCC tries to be smart
-      // and some structs cuse 64-bit writes to members.
-      // if it is misaligned, add spacing after the comp table
-      uint32_t offsetData = (sizeof(Object::CompRef) * compCount);
-      if(allocSize % 8 != 0) {
-        compDataSize += 4;
-        offsetData += 4;
-      }
-
-      allocSize += compDataSize;
-
-      //debugf("Allocating object %d | comps: %d | size: %lu bytes\n", objEntry->id, compCount, allocSize);
-
-      void* objMem = memalign(DATA_ALIGN, allocSize); // @TODO: custom allocator
-
-      auto objCompTablePtr = (Object::CompRef*)((char*)objMem + sizeof(Object));
-      auto objCompDataPtr = (char*)(objCompTablePtr) + offsetData;
-
-      Object* obj = new(objMem) Object();
-      obj->id = objEntry->id;
-      obj->group = objEntry->group;
-      obj->flags = objEntry->flags;
-      obj->compCount = compCount;
-      obj->pos = objEntry->pos;
-      obj->scale = objEntry->scale;
-      obj->rot = Math::unpackQuat(objEntry->packedRot);
-
-      ptrIn = objFile + sizeof(ObjectEntry);
-      while(ptrIn[1] != 0)
-      {
-        uint8_t compId = ptrIn[0];
-        uint8_t argSize = ptrIn[1] * 4;
-
-        const auto &compDef = COMP_TABLE[compId];
-        // debugf("Alloc: comp %d (arg: %d)\n", compId, argSize);
-
-        objCompTablePtr->type = compId;
-        objCompTablePtr->flags = 0;
-        objCompTablePtr->offset = objCompDataPtr - (char*)obj;
-        ++objCompTablePtr;
-
-        compDef.initDel(*obj, objCompDataPtr, ptrIn + 4);
-        objCompDataPtr += Math::alignUp(compDef.getAllocSize(ptrIn + 4), 8);
-        ptrIn += argSize;
-      }
-
-      objects.push_back(obj);
-      objFile = ptrIn + 4;
+    auto objFile = objFileStart;
+    for(uint32_t i=0; i<conf.objectCount; ++i) {
+      objects.push_back(loadObject(objFile));
     }
 
     free(objFileStart);

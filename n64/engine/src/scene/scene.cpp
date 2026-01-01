@@ -29,6 +29,7 @@
 namespace
 {
   bool collDebugDraw = false;
+  uint16_t nextId = 0xFF;
 }
 
 P64::Scene::Scene(uint16_t sceneId, Scene** ref)
@@ -92,6 +93,19 @@ void P64::Scene::update(float deltaTime)
 
   camMain = cameras.empty() ? nullptr : cameras[0];
   //debugf("cam %p: %d | %f\n", camMain, cameras.size(), (double)camMain->pos.z);
+
+  for(auto data : objectsToAdd) {
+    auto newObj = loadObject((uint8_t*&)data.prefabData, [&](Object &obj)
+    {
+      obj.id = data.objectId;
+      obj.pos = data.pos;
+      obj.scale = data.scale;
+      obj.rot = data.rot;
+      obj.flags = ObjectFlags::ACTIVE;
+    });
+    objects.push_back(newObj);
+  }
+  objectsToAdd.clear();
 
   collScene.update(deltaTime);
 
@@ -243,6 +257,23 @@ void P64::Scene::onObjectCollision(const Coll::CollEvent &event)
       compDef.onColl(*objB, dataPtr, eventOther);
     }
   }
+}
+
+uint16_t P64::Scene::addObject(
+  uint32_t prefabIdx,
+  const fm_vec3_t &pos,
+  const fm_vec3_t &scale,
+  const fm_quat_t &rot
+) {
+  auto *prefabData = AssetManager::getByIndex(prefabIdx);
+  objectsToAdd.push_back({
+    .prefabData = prefabData,
+    .pos = pos,
+    .scale = scale,
+    .rot = rot,
+    .objectId = ++nextId,
+  });
+  return nextId;
 }
 
 void P64::Scene::removeObject(Object &obj)

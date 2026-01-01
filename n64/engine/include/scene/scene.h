@@ -56,6 +56,15 @@ namespace P64
     DrawLayer::Setup layerSetup{};
   };
 
+  struct PrefabParams
+  {
+    void* prefabData{nullptr};
+    fm_vec3_t pos{0,0,0};
+    fm_vec3_t scale{1,1,1};
+    fm_quat_t rot{0,0,0,1};
+    uint16_t objectId{0};
+  };
+
   class Scene
   {
     private:
@@ -66,6 +75,7 @@ namespace P64
 
       // @TODO: avoid vector + fragmented alloc
       std::vector<Object*> objects{};
+      std::vector<PrefabParams> objectsToAdd{};
 
       Coll::Scene collScene{};
       std::vector<Object*> pendingObjDelete{};
@@ -79,6 +89,7 @@ namespace P64
       uint16_t id;
 
       void loadSceneConfig();
+      Object* loadObject(uint8_t* &objFile, std::function<void(Object&)> callback = {});
       void loadScene();
 
     public:
