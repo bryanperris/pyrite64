@@ -43,16 +43,21 @@ vec3 unpackNormals(int packed)
   return vec3(comp) / vec3(15.0, 31.0, 15.0);
 }
 
+mat3 calcNormalMax(in mat4 mat) {
+  mat3 res = mat3(mat);
+  res[0] = normalize(res[0]);
+  res[1] = normalize(res[1]);
+  res[2] = normalize(res[2]);
+  return quantizeMat3(res);
+}
+
 void main()
 {
   mat4 matMV = quantizeMat4(cameraMat * material.modelMat);
   mat4 matMVP = projMat * matMV;
 
-  mat3 matNorm = mat3(matMV);
-  matNorm[0] = normalize(matNorm[0]);
-  matNorm[1] = normalize(matNorm[1]);
-  matNorm[2] = normalize(matNorm[2]);
-  matNorm = quantizeMat3(matNorm);
+  mat3 matNormLight = calcNormalMax(material.modelMat);
+  mat3 matNormScreen = calcNormalMax(matMV);
 
   vec2 uvPixel = (vec2(inUV) / float(1 << 5));
   v_objectID = material.objectID;
@@ -61,7 +66,8 @@ void main()
 
   // Directional light
   vec3 norm = inNormal;
-  vec3 normScreen = matNorm * norm;
+  vec3 normWorld = matNormLight * norm;
+  vec3 normScreen = matNormScreen * norm;
 
   gl_Position = matMVP * vec4(vec3(inPosition), 1.0);
   posScreen = gl_Position.xy / gl_Position.w;
@@ -71,7 +77,7 @@ void main()
   //vec4 lightTotal = vec4(linearToGamma(material.ambientColor.rgb), 0.0);
   vec4 lightTotal = material.ambientColor;
   for(int i=0; i<2; ++i) {
-    float lightStren = max(dot(normScreen, material.lightDir[i].xyz), 0.0);
+    float lightStren = max(dot(normWorld, material.lightDir[i].xyz), 0.0);
     //vec4 colorNorm = vec4(linearToGamma(material.lightColor[i].rgb), 1.0);
     vec4 colorNorm = material.lightColor[i];
     lightTotal += colorNorm * lightStren;
