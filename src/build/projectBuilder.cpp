@@ -158,7 +158,7 @@ bool Build::buildProject(const std::string &path)
     Utils::Logger::log("Makefile changed, clean build");
 
     Utils::FS::saveTextFile(path + "/Makefile", makefile);
-    Utils::Proc::runSyncLogged("make -C \"" + path + "\" clean");
+    //Utils::Proc::runSyncLogged("make -C \"" + path + "\" clean");
   }
 
   {

@@ -122,9 +122,9 @@ namespace Project::Component::Code
           if (metaName == field.attr.end())continue;
           name = metaName->second;
 
-          if(data.args.find(name) == data.args.end()) {
-            data.args[name] = PropString{name, field.defaultValue};
-            data.args[name].id = Utils::Hash::randomU64();
+          if(data.args.find(field.name) == data.args.end()) {
+            data.args[field.name] = PropString{field.name, field.defaultValue};
+            data.args[field.name].id = Utils::Hash::randomU64();
           }
 
           if(field.type == Utils::DataType::ASSET_SPRITE)
