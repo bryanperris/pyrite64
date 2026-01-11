@@ -81,15 +81,20 @@ void Editor::ObjectInspector::draw() {
 
   uint64_t compDelUUID = 0;
   Project::Component::Entry *compCopy = nullptr;
-  for (auto &comp : srcObj->components)
+
+  auto drawComp = [&](Project::Object* obj, Project::Component::Entry &comp, bool isInstance)
   {
+    auto oldPrefabUUID = obj->uuidPrefab.value;
+    if(isInstance) {
+      obj->uuidPrefab.value = 0;
+    }
     ImGui::PushID(&comp);
 
     auto &def = Project::Component::TABLE[comp.id];
     auto name = std::string{def.icon} + "  " + comp.name;
     if (ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
     {
-      if(!isPrefabInst)
+      if(obj->uuidPrefab.value == 0 || obj->isPrefabEdit)
       {
         if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
           ImGui::OpenPopup("CompCtx");
@@ -110,12 +115,21 @@ void Editor::ObjectInspector::draw() {
       def.funcDraw(*obj, comp);
     }
     ImGui::PopID();
+    if(isInstance) {
+      obj->uuidPrefab.value = oldPrefabUUID;
+    }
+  };
+
+  for (auto &comp : srcObj->components) {
+    drawComp(obj.get(), comp, false);
   }
 
-  // Debug:
-  //ImGui::TextWrapped("%s", obj->serialize().c_str());
-
-  if(isPrefabInst && !obj->isPrefabEdit)return;
+  if(isPrefabInst && !obj->isPrefabEdit) {
+    for (auto &comp : obj->components) {
+      drawComp(obj.get(), comp, true);
+    }
+    srcObj = obj.get();
+  }
 
   if (compCopy) {
     srcObj->addComponent(compCopy->id);

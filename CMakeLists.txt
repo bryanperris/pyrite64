@@ -180,6 +180,7 @@ add_executable(p64editor src/main.cpp
         src/project/component/types/compAudio2d.cpp
         src/editor/pages/parts/layerInspector.cpp
         src/build/prefabBuilder.cpp
+        src/project/component/types/compConstraint.cpp
 )
 
 target_include_directories(p64editor PRIVATE

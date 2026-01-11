@@ -51,3 +51,17 @@ void P64::Object::remove()
   flags &= ~ObjectFlags::ACTIVE;
   SceneManager::getCurrent().removeObject(*this);
 }
+
+fm_vec3_t P64::Object::intoLocalSpace(const fm_vec3_t &p) const
+{
+  fm_quat_t invRot;
+  fm_quat_inverse(&invRot, &rot);
+
+  auto res = (p  - pos);
+  return invRot * res / scale;
+}
+
+fm_vec3_t P64::Object::outOfLocalSpace(const fm_vec3_t &p) const
+{
+  return rot * (p * scale) + pos;
+}

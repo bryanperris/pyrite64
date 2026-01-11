@@ -58,4 +58,12 @@ namespace P64::Comp
       return obj.getScene().getCollision().registerBCS(&data->bcs);
     }
   }
+
+  void CollBody::update(Object &obj, CollBody* data, float deltaTime)
+  {
+    data->bcs.halfExtend = data->orgScale * obj.scale;
+    if(data->bcs.isTrigger()) {
+      data->bcs.center = obj.pos;
+    }
+  }
 }

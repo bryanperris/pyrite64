@@ -207,7 +207,9 @@ void P64::Coll::Scene::update(float deltaTime)
       }
     }
 
-    bcsA->obj->pos = bcsA->center - bcsA->parentOffset;
+    if(bcsA->isSolid()) {
+      bcsA->obj->pos = bcsA->center - bcsA->parentOffset;
+    }
   }
   ticks += get_ticks() - ticksStart;
 }

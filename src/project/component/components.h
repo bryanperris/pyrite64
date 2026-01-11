@@ -72,6 +72,7 @@ namespace Project::Component
   MAKE_COMP(CollMesh)
   MAKE_COMP(CollBody)
   MAKE_COMP(Audio2D)
+  MAKE_COMP(Constraint)
 
   constexpr std::array TABLE{
     CompInfo{
@@ -151,6 +152,17 @@ namespace Project::Component
       .funcSerialize = Audio2D::serialize,
       .funcDeserialize = Audio2D::deserialize,
       .funcBuild = Audio2D::build
+    },
+    CompInfo{
+      .id = 7,
+      .icon = ICON_MDI_LINK " ",
+      .name = "Constraint",
+      .funcInit = Constraint::init,
+      .funcDraw = Constraint::draw,
+      .funcDrawPost3D = Constraint::draw3D,
+      .funcSerialize = Constraint::serialize,
+      .funcDeserialize = Constraint::deserialize,
+      .funcBuild = Constraint::build
     },
   };
 }

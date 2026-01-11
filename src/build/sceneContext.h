@@ -8,13 +8,14 @@
 #include "stringTable.h"
 #include "../utils/binaryFile.h"
 
-namespace Project { class Project; }
+namespace Project { class Project; class Scene; }
 
 namespace Build
 {
   struct SceneCtx
   {
     Project::Project *project{};
+    Project::Scene *scene{};
     std::vector<std::string> files{};
     std::array<uint64_t, 16> autoLoadFontUUIDs{};
     std::unordered_map<uint64_t, uint32_t> assetUUIDToIdx{};

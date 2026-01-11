@@ -28,9 +28,6 @@ namespace P64::Comp
 
     static void onEvent(Object& obj, CollBody* data, const ObjectEvent& event);
 
-    static void update(Object& obj, CollBody* data, float deltaTime)
-    {
-      data->bcs.halfExtend = data->orgScale * obj.scale;
-    }
+    static void update(Object& obj, CollBody* data, float deltaTime);
   };
 }

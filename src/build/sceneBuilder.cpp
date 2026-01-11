@@ -51,7 +51,7 @@ void Build::writeObject(Build::SceneCtx &ctx, Project::Object &obj, bool savePre
   ctx.fileObj.write(quatQuant);
 
   // DATA
-  for (auto &comp : srcObj->components) {
+  auto saveComp = [&ctx, &obj](Project::Component::Entry &comp) {
     auto compPos = ctx.fileObj.getPos();
     ctx.fileObj.skip(2);
     ctx.fileObj.skip(2); // flags (@TODO)
@@ -72,6 +72,16 @@ void Build::writeObject(Build::SceneCtx &ctx, Project::Object &obj, bool savePre
     ctx.fileObj.write<uint8_t>(size);
     ctx.fileObj.posPop();
     //ctx.fileObj.write<uint16_t>(comp.id);
+  };
+
+  for (auto &comp : srcObj->components) {
+    saveComp(comp);
+  }
+
+  if(srcObj != &obj) {
+    for (auto &comp : obj.components) {
+      saveComp(comp);
+    }
   }
 
   ctx.fileObj.write<uint32_t>(0);
@@ -87,6 +97,7 @@ void Build::buildScene(Project::Project &project, const Project::SceneEntry &sce
   std::string fileNameObj = fileNameScene + "o";
 
   std::unique_ptr<Project::Scene> sc{new Project::Scene(scene.id, project.getPath())};
+  ctx.scene = sc.get();
 
   auto fsDataPath = fs::absolute(fs::path{project.getPath()} / "filesystem" / "p64");
 
@@ -151,4 +162,6 @@ void Build::buildScene(Project::Project &project, const Project::SceneEntry &sce
 
   ctx.files.push_back("filesystem/p64/" + fileNameScene);
   ctx.files.push_back("filesystem/p64/" + fileNameObj);
+
+  ctx.scene = nullptr;
 }

@@ -168,5 +168,24 @@ namespace P64
         const SCENE &sc = getScene();
         return sc.getObjectById(this->group);
       }
+
+      /**
+       * Takes a world space position and converts it into the local space of this object.
+       *
+       * Note that world-scace here assumes the object itself is sitting in it.
+       * If you somehow have transforms before it, you need to apply those yourself.
+       *
+       * @param p point in world space
+       * @return point in local space
+       */
+      [[nodiscard]] fm_vec3_t intoLocalSpace(const fm_vec3_t &p) const;
+
+      /**
+       * Converts a point from local space of this object into world space.
+       * This will effectively apply pos/rot/scale of a point in local space.
+       * @param p point in local space
+       * @return point in world space
+       */
+      [[nodiscard]] fm_vec3_t outOfLocalSpace(const fm_vec3_t &p) const;
   };
 }
