@@ -8,16 +8,65 @@
 
 #include "nodes/nodeWait.h"
 #include "nodes/nodeObjDel.h"
+#include "nodes/nodeStart.h"
+#include "nodes/nodeObjEvent.h"
+#include "nodes/nodeCompare.h"
+#include "nodes/nodeValue.h"
+#include "nodes/nodeRepeat.h"
 
-typedef std::function<std::shared_ptr<Project::Graph::Node::Base>(ImFlow::ImNodeFlow &m, const ImVec2&)> NodeCreateFunc;
-#define TABLE_ENTRY(name) [](ImFlow::ImNodeFlow &m, const ImVec2& pos) { return m.addNode<Node::name>(pos); }
+namespace
+{
+  typedef std::function<std::shared_ptr<Project::Graph::Node::Base>(ImFlow::ImNodeFlow &m, const ImVec2&)> NodeCreateFunc;
+
+  struct TableEntry
+  {
+    NodeCreateFunc create;
+    const char* name;
+  };
+}
+
+#define TABLE_ENTRY(name) TableEntry{ \
+    [](ImFlow::ImNodeFlow &m, const ImVec2& pos) { return m.addNode<Node::name>(pos); }, \
+    Node::name::NAME \
+  }
+
+namespace Project::Graph::Node
+{
+  std::shared_ptr<ImFlow::PinStyle> PIN_STYLE_LOGIC = ImFlow::PinStyle::green();
+  std::shared_ptr<ImFlow::PinStyle> PIN_STYLE_VALUE = ImFlow::PinStyle::brown();
+}
 
 namespace Project::Graph
 {
-  auto NODE_TABLE = std::to_array<NodeCreateFunc>({
+  auto NODE_TABLE = std::to_array<TableEntry>({
+    TABLE_ENTRY(Start),
     TABLE_ENTRY(Wait),
     TABLE_ENTRY(ObjDel),
+    TABLE_ENTRY(ObjEvent),
+    TABLE_ENTRY(Compare),
+    TABLE_ENTRY(Value),
+    TABLE_ENTRY(Repeat),
   });
+
+  const std::vector<std::string> & Graph::getNodeNames()
+  {
+    static std::vector<std::string> names = {};
+    if(names.empty()) {
+      for(const auto &entry : NODE_TABLE) {
+        names.emplace_back(entry.name);
+      }
+    }
+    return names;
+  }
+
+  std::shared_ptr<Node::Base> Graph::addNode(uint32_t type, const ImVec2 &pos)
+  {
+    assert(type < NODE_TABLE.size() && "Unknown node type in graph addNode");
+    auto newNode = NODE_TABLE[type].create(graph, pos);
+    newNode->type = type;
+    newNode->uuid = Utils::Hash::randomU64();
+    return newNode;
+  }
 
   bool Graph::deserialize(const std::string &jsonData)
   {
@@ -27,7 +76,7 @@ namespace Project::Graph
     for(auto &savedNode : nodeData["nodes"]) {
       uint32_t type = savedNode["type"];
       assert(type < NODE_TABLE.size() && "Unknown node type in graph load");
-      auto newNode = NODE_TABLE[type](graph, {});
+      auto newNode = NODE_TABLE[type].create(graph, {});
       newNode->deserialize(savedNode);
       newNode->setPos({savedNode["pos"][0], savedNode["pos"][1]});
       newNode->type = type;
@@ -39,8 +88,13 @@ namespace Project::Graph
       auto nodeAIt = newNodes.find(savedLink["src"]);
       auto nodeBIt = newNodes.find(savedLink["dst"]);
       if(nodeAIt != newNodes.end() && nodeBIt != newNodes.end()) {
-        auto pinA = nodeAIt->second->getOuts()[ savedLink["srcPort"] ].get();
-        auto pinB = nodeBIt->second->getIns()[ savedLink["dstPort"] ].get();
+        auto &outs = nodeAIt->second->getOuts();
+        auto &ins = nodeBIt->second->getIns();
+        uint32_t srcIndex = savedLink.value("srcPort", 0);
+        uint32_t dstIndex = savedLink.value("dstPort", 0);
+
+        auto pinA = srcIndex < outs.size() ? outs[ srcIndex ].get() : nullptr;
+        auto pinB = dstIndex < ins.size() ? ins[ dstIndex ].get() : nullptr;
         if(pinA && pinB) {
           pinA->createLink(pinB);
         }
@@ -115,8 +169,22 @@ namespace Project::Graph
       }
     }
 
-    // write out node data itself
+    // convert nodes to vector, and make sure the start node (type=0) is first
+    std::vector<std::shared_ptr<ImFlow::BaseNode>> nodeVec{};
+    nodeVec.reserve(nodes.size());
     for(const auto &node : nodes | std::views::values)
+    {
+      auto p64Node = (Node::Base*)node.get();
+      if(p64Node->type == 0) {
+        nodeVec.insert(nodeVec.begin(), node);
+      } else {
+        nodeVec.push_back(node);
+      }
+    }
+
+
+    // write out node data itself
+    for(const auto &node : nodeVec)
     {
       auto p64Node = (Node::Base*)node.get();
       auto outSize = nodeOutgoingMap[p64Node->uuid].size();
@@ -127,7 +195,7 @@ namespace Project::Graph
       f.write<uint8_t>(outSize);
 
       for(auto i=0; i < outSize; ++i) {
-        f.write<uint16_t>(0xFFFF); // next node(s), patched later
+        f.write<uint16_t>(0xDEAD); // next node(s), patched later
       }
 
       p64Node->build(f);

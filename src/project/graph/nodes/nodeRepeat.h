@@ -9,41 +9,41 @@
 
 namespace Project::Graph::Node
 {
-  class Wait : public Base
+  class Repeat : public Base
   {
     private:
-      float time{};
+      uint32_t count{};
 
     public:
-      constexpr static const char* NAME = ICON_MDI_CLOCK_OUTLINE " Wait";
+      constexpr static const char* NAME = ICON_MDI_REPEAT " Repeat";
 
-      Wait()
+      Repeat()
       {
         uuid = Utils::Hash::randomU64();
         setTitle(NAME);
         setStyle(std::make_shared<ImFlow::NodeStyle>(IM_COL32(90,191,93,255), ImColor(0,0,0,255), 3.5f));
 
         addIN<TypeLogic>("", ImFlow::ConnectionFilter::SameType(), PIN_STYLE_LOGIC);
-        addOUT<TypeLogic>("", PIN_STYLE_LOGIC);
+        addOUT<TypeLogic>("Loop", PIN_STYLE_LOGIC);
+        addOUT<TypeLogic>("Exit", PIN_STYLE_LOGIC);
       }
 
       void draw() override {
         ImGui::SetNextItemWidth(50.f);
-        ImGui::InputFloat("sec.", &time);
-
+        ImGui::InputScalar("##Count", ImGuiDataType_U32, &count);
         //showIN("", 0, ImFlow::ConnectionFilter::SameType(), PIN_STYLE_LOGIC);
       }
 
       void serialize(nlohmann::json &j) override {
-        j["time"] = time;
+        j["count"] = count;
       }
 
       void deserialize(nlohmann::json &j) override {
-        time = j.value("time", 0.0f);
+        count = j.value("count", 0);
       }
 
       void build(Utils::BinaryFile &f) override {
-        f.write<uint16_t>(time * 1000); // milliseconds
+        f.write<uint16_t>(count);
       }
   };
 }

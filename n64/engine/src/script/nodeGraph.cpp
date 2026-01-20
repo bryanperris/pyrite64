@@ -5,14 +5,27 @@
 #include "script/nodeGraph.h"
 
 #include "scene/object.h"
+#include "scene/scene.h"
+
+namespace
+{
+  constexpr const char* NODE_TYPE_NAMES[] {
+    "START",
+    "WAIT",
+    "OBJ_DEL",
+    "OBJ_EVENT",
+    "COMPARE",
+    "VALUE",
+  };
+}
 
 namespace P64::NodeGraph
 {
   struct NodeDef
   {
-    uint8_t type{};
+    NodeType type{};
     uint8_t outCount{};
-    uint16_t outOffsets[];
+    int16_t outOffsets[];
 
     NodeDef *getNext(uint32_t idx) {
       if(idx >= outCount)return nullptr;
@@ -32,10 +45,11 @@ namespace P64::NodeGraph
 
   void printNode(NodeDef* node, int level)
   {
+    if(level > 5)return;
     debugf("%*s", level * 2, "");
-    debugf("%p Type:%d, outputs: %d ", node, node->type, node->outCount);
+    debugf("%p Type:%s, outputs: %d ", node, NODE_TYPE_NAMES[(uint8_t)node->type], node->outCount);
     for (uint16_t i = 0; i < node->outCount; i++) {
-      debugf("0x%04X ", node->outOffsets[i]);
+      debugf("%d ", node->outOffsets[i]);
     }
 
     uint16_t *nodeData = (uint16_t*)&node->outOffsets[node->outCount];
@@ -53,19 +67,34 @@ namespace P64::NodeGraph
 void P64::NodeGraph::Instance::update(float deltaTime) {
   if(!currNode)return;
 
-  printNode(currNode, 0);
   uint16_t *data = currNode->getDataPtr();
 
-  debugf("reg: %d ", reg);
   switch(currNode->type)
   {
-    case 0:
+    case NodeType::START:
+      printNode(currNode, 0);
+      break;
+
+    case NodeType::WAIT:
       reg += (uint16_t)(deltaTime * 1000.0f);
       if(reg < data[0])return;
       reg = 0;
       break;
-    case 1:
+
+    case NodeType::OBJ_DEL:
       if(object)object->remove();
+      break;
+
+    case NodeType::OBJ_EVENT:
+      object->getScene().sendEvent(
+        data[0] == 0 ? object->id : data[0],
+        object->id,
+        data[1],
+        (data[2] << 16) | data[3]
+      );
+      break;
+    default:
+      debugf("Unhandled node type: %d\n", (uint8_t)currNode->type);
       break;
   }
 

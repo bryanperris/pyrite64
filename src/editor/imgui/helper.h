@@ -97,17 +97,17 @@ namespace ImTable
     const std::string &getName() const { return name; }
   };
 
-  inline bool start(const char *name, Project::Object *nextObj = nullptr, int width = 2)
+  inline bool start(const char *name, Project::Object *nextObj = nullptr, float width = -1)
   {
     obj = nullptr;
-    if (!ImGui::BeginTable(name, width))return false;
+    if (!ImGui::BeginTable(name, 2))return false;
     obj = nextObj;
     ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);
     ImGui::TableSetupColumn("Input", ImGuiTableColumnFlags_WidthStretch);
 
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(1);
-    ImGui::PushItemWidth(-FLT_MIN);
+    ImGui::PushItemWidth(width >= 0 ? width : -FLT_MIN);
     return true;
   }
 
@@ -135,13 +135,14 @@ namespace ImTable
     return res;
   }
 
-  inline void addComboBox(const std::string &name, int &itemCurrent, const char* const items[], int itemsCount) {
+  inline bool addComboBox(const std::string &name, int &itemCurrent, const char* const items[], int itemsCount) {
     add(name);
     bool disabled  (obj && obj->isPrefabInstance() && !obj->isPrefabEdit);
     auto labelHidden = "##" + name;
     if(disabled)ImGui::BeginDisabled();
-    ImGui::Combo(labelHidden.c_str(), &itemCurrent, items, itemsCount);
+    bool res = ImGui::Combo(labelHidden.c_str(), &itemCurrent, items, itemsCount);
     if(disabled)ImGui::EndDisabled();
+    return res;
   }
 
   inline void addComboBox(const std::string &name, int &itemCurrent, const std::vector<const char*> &items) {

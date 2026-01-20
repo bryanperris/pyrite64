@@ -7,6 +7,7 @@
 
 #include "ImNodeFlow.h"
 #include "../../utils/binaryFile.h"
+#include "nodes/baseNode.h"
 
 namespace Project::Graph
 {
@@ -14,6 +15,9 @@ namespace Project::Graph
   {
     public:
       ImFlow::ImNodeFlow graph{};
+
+      static const std::vector<std::string>& getNodeNames();
+      std::shared_ptr<Node::Base> addNode(uint32_t type, const ImVec2& pos);
 
       bool deserialize(const std::string &jsonData);
       std::string serialize();

@@ -14,6 +14,16 @@ namespace P64
 
 namespace P64::NodeGraph
 {
+  enum class NodeType : uint8_t
+  {
+    START = 0,
+    WAIT = 1,
+    OBJ_DEL = 2,
+    OBJ_EVENT = 3,
+    COMPARE = 4,
+    VALUE = 5,
+  };
+
   struct GraphDef;
   struct NodeDef;
 

@@ -5,24 +5,25 @@
 #pragma once
 
 #include "baseNode.h"
-#include "../../../editor/imgui/helper.h"
 #include "../../../utils/hash.h"
 
 namespace Project::Graph::Node
 {
-  class ObjDel : public Base
+  class ObjEvent : public Base
   {
     private:
       uint16_t objectId{};
+      uint16_t eventType{};
+      uint32_t eventValue{};
 
     public:
-      constexpr static const char* NAME = ICON_MDI_TRASH_CAN_OUTLINE " Delete Object";
+      constexpr static const char* NAME = ICON_MDI_EMAIL_FAST_OUTLINE " Send Event";
 
-      ObjDel()
+      ObjEvent()
       {
         uuid = Utils::Hash::randomU64();
         setTitle(NAME);
-        setStyle(std::make_shared<ImFlow::NodeStyle>(IM_COL32(191,90,93,255), ImColor(0,0,0,255), 3.5f));
+        setStyle(std::make_shared<ImFlow::NodeStyle>(IM_COL32(90,191,93,255), ImColor(0,0,0,255), 3.5f));
 
         addIN<TypeLogic>("", ImFlow::ConnectionFilter::SameType(), PIN_STYLE_LOGIC);
         addOUT<TypeLogic>("", PIN_STYLE_LOGIC);
@@ -32,21 +33,31 @@ namespace Project::Graph::Node
         std::vector<ImTable::ComboEntry> entries;
         entries.push_back({0, "< Self >"});
 
-        ImGui::SetNextItemWidth(90.f);
-        ImGui::VectorComboBox("##Obj", entries, objectId);
-        //ImGui::InputScalar("##ObjectID", ImGuiDataType_U16, &objectId);
+        if(ImTable::start("Node", nullptr, 100.0f)) {
+          ImTable::add("Object");
+          ImGui::VectorComboBox("##", entries, objectId);
+          ImTable::add("Type", eventType);
+          ImTable::add("Value", eventValue);
+          ImTable::end();
+        }
       }
 
       void serialize(nlohmann::json &j) override {
         j["objectId"] = objectId;
+        j["eventType"] = eventType;
+        j["eventValue"] = eventValue;
       }
 
       void deserialize(nlohmann::json &j) override {
         objectId = j.value("objectId", 0);
+        eventType = j.value("eventType", 0);
+        eventValue = j.value("eventValue", 0);
       }
 
       void build(Utils::BinaryFile &f) override {
         f.write<uint16_t>(objectId);
+        f.write<uint16_t>(eventType);
+        f.write<uint32_t>(eventValue);
       }
   };
 }
