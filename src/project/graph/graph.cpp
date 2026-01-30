@@ -18,6 +18,8 @@
 #include "nodes/nodeCompBool.h"
 #include "nodes/nodeSceneLoad.h"
 #include "nodes/nodeArg.h"
+#include "nodes/nodeSwitchCase.h"
+#include "nodes/nodeNote.h"
 
 namespace
 {
@@ -79,6 +81,8 @@ namespace Project::Graph
     TABLE_ENTRY(CompBool),
     TABLE_ENTRY(SceneLoad),
     TABLE_ENTRY(Arg),
+    TABLE_ENTRY(SwitchCase),
+    TABLE_ENTRY(Note),
   });
 
   const std::vector<std::string> & Graph::getNodeNames()

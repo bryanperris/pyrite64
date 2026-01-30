@@ -27,13 +27,15 @@ namespace P64::NodeGraph
 
     public:
       Object *object{};
-      uint32_t args[2];
+      uint32_t args[2]{};
+      uint16_t asset{};
+      uint8_t repeatable{};
 
       Instance() = default;
       ~Instance();
 
       void load(uint16_t assetIdx);
-      void update(float deltaTime);
+      bool update(float deltaTime);
   };
 
   typedef int(*UserFunc)(uint32_t);

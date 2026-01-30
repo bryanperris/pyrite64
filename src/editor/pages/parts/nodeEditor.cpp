@@ -106,19 +106,12 @@ void Editor::NodeEditor::draw(ImGuiID defDockId)
   }
 
   ImGui::Begin(name.c_str());
-
-  auto size = ImGui::GetContentRegionAvail();
-  size.y -= 32;
-  graph.graph.setSize(size);
+  graph.graph.setSize(ImGui::GetContentRegionAvail());
   graph.graph.update();
-
-  ImGui::Text("@TODO: Menu bar");
-
-  ImGui::SameLine();
-  if(ImGui::Button("Save"))
-  {
-    Utils::FS::saveTextFile(currentAsset->path, graph.serialize());
-  }
-
   ImGui::End();
+}
+
+void Editor::NodeEditor::save()
+{
+  Utils::FS::saveTextFile(currentAsset->path, graph.serialize());
 }

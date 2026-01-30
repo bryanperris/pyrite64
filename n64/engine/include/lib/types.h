@@ -53,6 +53,11 @@ consteval uint32_t operator ""_crc32(const char *str, size_t len)
   return P64::crc32(str, len);
 }
 
+consteval uint32_t operator ""_hash(const char *str, size_t len)
+{
+  return P64::crc32(str, len);
+}
+
 static_assert("abcd"_crc32 == 0xed82cd11);
 static_assert("someVeryLongValueToHash1234"_crc32  == 0xf92e9c5f);
 

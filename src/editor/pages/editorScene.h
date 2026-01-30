@@ -40,6 +40,8 @@ namespace Editor
     public:
       Scene();
       ~Scene();
+
       void draw();
+      void save();
   };
 }

@@ -8,6 +8,7 @@
 #include "json.hpp"
 #include "IconsMaterialDesignIcons.h"
 #include "../../../utils/string.h"
+#include "imgui/misc/cpp/imgui_stdlib.h"
 
 namespace Project::Graph
 {
@@ -71,7 +72,12 @@ namespace Project::Graph
 
     BuildCtx& jump(uint32_t outIndex) {
       if(outUUIDs && outIndex < outUUIDs->size()) {
-        source += "    goto NODE_" + Utils::toHex64((*outUUIDs)[outIndex]) + ";\n";
+        auto uuidOut = (*outUUIDs)[outIndex];
+        if(uuidOut) {
+          source += "    goto NODE_" + Utils::toHex64(uuidOut) + ";\n";
+        } else {
+          source += "    return;\n";
+        }
       } else {
         source += "    static_assert(false, \"Missing output UUID for jump\");\n";
       }

@@ -20,5 +20,6 @@ namespace Editor
       NodeEditor(uint64_t assetUUID);
       ~NodeEditor();
       void draw(ImGuiID defDockId);
+      void save();
   };
 }

@@ -9,14 +9,15 @@
 
 namespace Project::Graph::Node
 {
-  class CompBool : public Base
+  class SwitchCase : public Base
   {
     private:
+      std::vector<uint32_t> cases{};
 
     public:
-      constexpr static const char* NAME = ICON_MDI_CALL_SPLIT " If-Else";
+      constexpr static const char* NAME = ICON_MDI_CALL_SPLIT " Switch-Case";
 
-      CompBool()
+      SwitchCase()
       {
         uuid = Utils::Hash::randomU64();
         setTitle(NAME);
@@ -26,19 +27,36 @@ namespace Project::Graph::Node
         addIN<TypeValue>("", ImFlow::ConnectionFilter::SameType(), PIN_STYLE_VALUE);
         valInputTypes.push_back(0);
         valInputTypes.push_back(1);
-
-        addOUT<TypeLogic>("True", PIN_STYLE_LOGIC);
-        addOUT<TypeLogic>("False", PIN_STYLE_LOGIC);
       }
 
       void draw() override {
 
+        uint32_t idx = 0;
+        for(auto &c : cases) {
+          ImGui::SetNextItemWidth(60.0f);
+          ImGui::PushID(idx);
+          ImGui::InputScalar("##", ImGuiDataType_U32, &c);
+          ImGui::PopID();
+          ++idx;
+        }
+
+        if(ImGui::Button("Add")) {
+          cases.push_back(0);
+          addOUT<TypeLogic>("", PIN_STYLE_LOGIC);
+        }
       }
 
       void serialize(nlohmann::json &j) override {
+        j["cases"] = cases;
       }
 
       void deserialize(nlohmann::json &j) override {
+        if(!j.contains("cases"))return;
+        cases = j["cases"].get<std::vector<uint32_t>>();
+
+        for(auto c : cases) {
+          addOUT<TypeLogic>("", PIN_STYLE_LOGIC);
+        }
       }
 
       void build(BuildCtx &ctx) override
@@ -50,11 +68,13 @@ namespace Project::Graph::Node
           ctx.localVar("int", "t_comp", "res_" + idStr);
         }
 
-        ctx.line("if(t_comp) {")
-          .jump(0)
-        .line("} else {")
-          .jump(1)
-        .line("}");
+        ctx.line("switch(t_comp) {");
+        for(size_t i = 0; i < cases.size(); ++i) {
+          ctx.line("  case " + std::to_string(cases[i]) + ":")
+            .jump(static_cast<uint32_t>(i))
+          .line("    break;");
+        }
+        ctx.line("}");
       }
   };
 }

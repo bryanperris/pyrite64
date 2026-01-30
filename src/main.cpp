@@ -281,6 +281,7 @@ int main(int argc, char** argv)
           done = true;
         }
 
+        // @TODO: refactor into generic actions with keybinds
         if (event.type == SDL_EVENT_KEY_DOWN)
         {
           if(!ImGui::GetIO().WantTextInput)
@@ -292,7 +293,10 @@ int main(int argc, char** argv)
               Editor::Actions::call(Editor::Actions::Type::PASTE);
             }
             if ((event.key.mod & SDL_KMOD_CTRL) && event.key.key == SDLK_S) {
-              if (ctx.project)ctx.project->save();
+              if (ctx.project) {
+                ctx.project->save();
+                editorScene.save();
+              }
             }
           }
 

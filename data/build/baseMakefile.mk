@@ -25,6 +25,8 @@ src =  $(wildcard src/*.cpp) $(wildcard src/p64/*.cpp) $(wildcard src/user/*.cpp
 
 all: $(ROM_NAME).z64
 
+include Makefile.custom
+
 $(src): $(ENGINE_DIR)/build/engine.a
 
 $(ENGINE_DIR)/build/engine.a: FORCE
@@ -58,7 +60,6 @@ $(BUILD_DIR)/$(ROM_NAME).elf: $(src:%.cpp=$(BUILD_DIR)/%.o) $(ENGINE_DIR)/build/
 $(ROM_NAME).z64: N64_ROM_TITLE="{{PROJECT_NAME}}"
 $(ROM_NAME).z64: $(BUILD_DIR)/$(ROM_NAME).dfs
 
-include Makefile.custom
 
 clean:
 	rm -rf $(BUILD_DIR) $(ROM_NAME).z64

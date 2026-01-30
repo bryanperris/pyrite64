@@ -13,7 +13,7 @@ namespace
   {
     uint16_t assetIdx;
     uint8_t autoRun;
-    uint8_t _padding;
+    uint8_t repeatable;
   };
 }
 
@@ -30,6 +30,7 @@ namespace P64::Comp
     new(data) NodeGraph();
     data->inst.load(initData->assetIdx);
     data->inst.object = &obj;
+    data->inst.repeatable = initData->repeatable != 0;
     data->doUpdate = initData->autoRun != 0;
   }
 }

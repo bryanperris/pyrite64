@@ -13,7 +13,7 @@ namespace Project::Graph::Node
   {
     private:
       std::string funcName{};
-      uint32_t arg0;
+      std::string arg0{"0"};
 
     public:
       constexpr static const char* NAME = ICON_MDI_FUNCTION " Function";
@@ -22,7 +22,7 @@ namespace Project::Graph::Node
         if(funcName.empty()) {
           setTitle(NAME);
         } else {
-          setTitle(ICON_MDI_FUNCTION " " + funcName + "(" + std::to_string(arg0) + ")");
+          setTitle(ICON_MDI_FUNCTION " " + funcName);// + "(" + arg0 + ")");
         }
       }
 
@@ -44,8 +44,8 @@ namespace Project::Graph::Node
         auto textWidth  = ImGui::CalcTextSize(funcName.c_str()).x + 16;
         ImGui::SetNextItemWidth(fmaxf(textWidth, 50.0f));
         changed |= ImGui::InputText("##FuncName", &funcName);
-        ImGui::SetNextItemWidth(50.f);
-        changed |= ImGui::InputScalar("Arg.", ImGuiDataType_U32, &arg0);
+        ImGui::SetNextItemWidth(fmaxf(textWidth, 50.0f));
+        changed |= ImGui::InputText("##Arg", &arg0);
 
         if(changed) {
           updateTitle();
@@ -61,7 +61,7 @@ namespace Project::Graph::Node
 
       void deserialize(nlohmann::json &j) override {
         funcName = j.value("funcName", "");
-        arg0 = j.value("arg0", 0);
+        arg0 = j.value("arg0", "0");
         updateTitle();
       }
 
@@ -69,9 +69,16 @@ namespace Project::Graph::Node
         auto uuidStr = std::to_string(Utils::Hash::crc32(funcName));
         auto funcVar = ctx.globalVar("UserFunc", "P64::NodeGraph::getFunction("+uuidStr+")");
 
+        std::string arg = this->arg0;
+        try {
+          std::stoul(arg);
+        } catch(...) {
+          arg = '"' + arg + "\"_hash";
+        }
+
         auto resVar = "res_" + Utils::toHex64(uuid);
         ctx.globalVar("int", resVar, 0)
-          .localConst("uint32_t", "t_arg", arg0)
+          .localConst("uint32_t", "t_arg", arg)
           .line(resVar + " = " + funcVar + "(t_arg);");
 
       }

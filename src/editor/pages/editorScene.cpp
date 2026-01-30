@@ -214,3 +214,10 @@ void Editor::Scene::draw()
   ImGui::Text("%d FPS", (int)roundf(io.Framerate));
   ImGui::End();
 }
+
+void Editor::Scene::save()
+{
+  for(auto &nodeEditor : nodeEditors) {
+    nodeEditor->save();
+  }
+}

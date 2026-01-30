@@ -25,6 +25,9 @@ namespace P64::Comp
         doUpdate = true;
         return oldState == false;
       }
+
+      [[nodiscard]] bool isRunning() const { return doUpdate != 0; }
+
       void enable() { doUpdate = true; }
       void disable() { doUpdate = false; }
 
@@ -37,7 +40,9 @@ namespace P64::Comp
 
     static void update(Object& obj, NodeGraph* data, float deltaTime) {
       if(data->doUpdate) {
-        data->inst.update(deltaTime);
+        if(!data->inst.update(deltaTime)) {
+          data->doUpdate = false;
+        }
       }
     }
   };

@@ -36,8 +36,9 @@ namespace P64::NodeGraph
 
 void P64::NodeGraph::Instance::load(uint16_t assetIdx)
 {
-  graphDef = (GraphDef*)AssetManager::getByIndex(assetIdx);
-  debugf("Stack-size: %d %d\n", assetIdx, graphDef->stackSize);
+  asset = assetIdx;
+  graphDef = (GraphDef*)AssetManager::getByIndex(asset);
+  debugf("Stack-size: %d %d\n", asset, graphDef->stackSize);
   corot = coro_create(graphDef->func, this, graphDef->stackSize*2);
 }
 
@@ -49,9 +50,9 @@ P64::NodeGraph::Instance::~Instance()
   }
 }
 
-void P64::NodeGraph::Instance::update(float deltaTime) {
+bool P64::NodeGraph::Instance::update(float deltaTime) {
   //debugf("Instance::update: %p\n", corot);
-  if(!corot)return;
+  if(!corot)return false;
 
   //auto t = get_ticks();
   //disable_interrupts();
@@ -63,7 +64,10 @@ void P64::NodeGraph::Instance::update(float deltaTime) {
   {
     coro_destroy(corot);
     corot = nullptr;
+    if(repeatable)load(asset);
+    return false;
   }
+  return true;
 }
 
 void P64::NodeGraph::registerFunction(uint32_t strCRC32, UserFunc fn)

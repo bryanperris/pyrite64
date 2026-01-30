@@ -21,6 +21,7 @@ namespace Project::Component::NodeGraph
   {
     PROP_U64(asset);
     PROP_BOOL(autoRun);
+    PROP_BOOL(repeatable);
   };
 
   std::shared_ptr<void> init(Object &obj) {
@@ -34,6 +35,7 @@ namespace Project::Component::NodeGraph
     return Utils::JSON::Builder{}
       .set(data.asset)
       .set(data.autoRun)
+      .set(data.repeatable)
       .doc;
   }
 
@@ -41,6 +43,7 @@ namespace Project::Component::NodeGraph
     auto data = std::make_shared<Data>();
     Utils::JSON::readProp(doc, data->asset);
     Utils::JSON::readProp(doc, data->autoRun, true);
+    Utils::JSON::readProp(doc, data->repeatable, false);
     return data;
   }
 
@@ -58,7 +61,7 @@ namespace Project::Component::NodeGraph
 
     ctx.fileObj.write<uint16_t>(id);
     ctx.fileObj.write<uint8_t>(data.autoRun.resolve(obj) ? 1 : 0);
-    ctx.fileObj.write<uint8_t>(0); // padding
+    ctx.fileObj.write<uint8_t>(data.repeatable.resolve(obj) ? 1 : 0);
   }
 
   void draw(Object &obj, Entry &entry)
@@ -71,6 +74,7 @@ namespace Project::Component::NodeGraph
       ImTable::addVecComboBox("File", assetList, data.asset.value);
 
       ImTable::addObjProp("Auto Run", data.autoRun);
+      ImTable::addObjProp("Repeatable", data.repeatable);
 
       ImTable::add("Action");
       if(ImGui::Button(ICON_MDI_PENCIL " Edit")) {
