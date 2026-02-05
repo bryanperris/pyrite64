@@ -214,7 +214,7 @@ int main(int argc, char** argv)
           }
 
           // Fallback for environments that don't emit SDL_EVENT_TEXT_INPUT (e.g., some WSL setups).
-          if (ImGui::GetIO().WantTextInput) {
+          /*if (ImGui::GetIO().WantTextInput) {
             SDL_Keymod modstate = (SDL_Keymod)SDL_GetModState();
             const bool hasTextModifiers = (modstate & (SDL_KMOD_CTRL | SDL_KMOD_ALT | SDL_KMOD_GUI)) != 0;
             if (!hasTextModifiers) {
@@ -223,7 +223,7 @@ int main(int argc, char** argv)
                 ImGui::GetIO().AddInputCharacter((unsigned int)keycode);
               }
             }
-          }
+          }*/
         }
         // Check: io.WantCaptureMouse, io.WantCaptureKeyboard
       }
