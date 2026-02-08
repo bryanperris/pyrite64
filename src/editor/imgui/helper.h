@@ -91,6 +91,29 @@ namespace ImGui
 namespace ImTable
 {
   extern Project::Object *obj;
+  inline bool prefabEditOverride{false};
+
+  // Checks if the current object is a prefab instance and not in edit mode, or if the prefab edit override is active.
+  inline bool isPrefabLocked(const Project::Object *target = nullptr)
+  {
+    const auto *ref = target ? target : obj;
+    if (!ref) return false;
+    if (prefabEditOverride) return false;
+    return ref->isPrefabInstance() && !ref->isPrefabEdit;
+  }
+
+  struct PrefabEditScope
+  {
+    bool prev{false};
+    explicit PrefabEditScope(bool allow) : prev(prefabEditOverride)
+    {
+      prefabEditOverride = allow;
+    }
+    ~PrefabEditScope()
+    {
+      prefabEditOverride = prev;
+    }
+  };
 
   struct ComboEntry
   {
@@ -215,7 +238,7 @@ namespace ImTable
   inline int addVecComboBox(const std::string &name, const std::vector<T> &items, auto &id, OnChange onChange)
   {
     add(name);
-    bool disabled  (obj && obj->isPrefabInstance() && !obj->isPrefabEdit);
+    bool disabled  (isPrefabLocked());
     if(disabled)ImGui::BeginDisabled();
     int idx = 0;
     for (const auto &item : items) {
@@ -251,7 +274,7 @@ namespace ImTable
 
   inline bool addComboBox(const std::string &name, int &itemCurrent, const char* const items[], int itemsCount) {
     add(name);
-    bool disabled  (obj && obj->isPrefabInstance() && !obj->isPrefabEdit);
+    bool disabled  (isPrefabLocked());
     auto labelHidden = "##" + name;
     if(disabled)ImGui::BeginDisabled();
     const char* preview = (itemCurrent >= 0 && itemCurrent < itemsCount) ? items[itemCurrent] : "<None>";
@@ -270,7 +293,7 @@ namespace ImTable
 
   inline void addComboBox(const std::string &name, int &itemCurrent, const std::vector<const char*> &items) {
     add(name);
-    bool disabled  (obj && obj->isPrefabInstance() && !obj->isPrefabEdit);
+    bool disabled  (isPrefabLocked());
     if(disabled)ImGui::BeginDisabled();
     auto labelHidden = "##" + name;
     const char* preview = (itemCurrent >= 0 && itemCurrent < (int)items.size()) ? items[itemCurrent] : "<None>";
@@ -288,7 +311,7 @@ namespace ImTable
 
   inline void addCheckBox(const std::string &name, bool &value) {
     add(name);
-    bool disabled  (obj && obj->isPrefabInstance() && !obj->isPrefabEdit);
+    bool disabled  (isPrefabLocked());
     if(disabled)ImGui::BeginDisabled();
     auto labelHidden = "##" + name;
     SnapshotGuard guard("Edit " + name);
@@ -300,7 +323,7 @@ namespace ImTable
   inline void addBitMask8(const std::string &name, uint32_t &value)
   {
     add(name);
-    bool disabled  (obj && obj->isPrefabInstance() && !obj->isPrefabEdit);
+    bool disabled  (isPrefabLocked());
     if(disabled)ImGui::BeginDisabled();
     auto labelHidden = "##" + name;
     // 8 checkboxes
@@ -357,8 +380,7 @@ namespace ImTable
   template<typename T>
   bool add(const std::string &name, T &value) {
     add(name);
-    bool disabled = false;
-    if(obj && obj->isPrefabInstance() && !obj->isPrefabEdit)disabled = true;
+    bool disabled  (isPrefabLocked());
     ImGui::PushID(name.c_str());
     if(disabled)ImGui::BeginDisabled();
     SnapshotGuard guard("Edit " + name);
@@ -422,7 +444,7 @@ namespace ImTable
     bool isOverride{true};
 
     T *val = &prop.value;
-    if(obj->isPrefabInstance() && !obj->isPrefabEdit) {
+    if(isPrefabLocked()) {
       val = &prop.resolve(obj->propOverrides, &isOverride);
     }
 
@@ -431,7 +453,7 @@ namespace ImTable
 
     if(isDisabled)ImGui::BeginDisabled();
 
-    if(obj && obj->isPrefabInstance() && !obj->isPrefabEdit)
+    if(isPrefabLocked())
     {
       bool isOverrideLocal = isOverride;
       if(ImGui::IconToggle(
@@ -474,7 +496,7 @@ namespace ImTable
 
   inline void addColor(const std::string &name, glm::vec4 &color, bool withAlpha = true) {
     add(name);
-    bool disabled = (obj && obj->uuidPrefab.value);
+    bool disabled (isPrefabLocked());
     if(disabled)ImGui::BeginDisabled();
     SnapshotGuard guard("Edit " + name);
     bool changed = false;
