@@ -37,13 +37,14 @@ namespace Project
     public:
       ProjectConf conf{};
 
-      Project(const std::string &path);
+      Project(const std::string &p64projPath);
 
       void save();
 
       AssetManager& getAssets() { return assets; }
       SceneManager& getScenes() { return scenes; }
       [[nodiscard]] const std::string &getPath() const { return path; }
+      [[nodiscard]] const std::string &getConfigPath() const { return pathConfig; }
 
   };
 }

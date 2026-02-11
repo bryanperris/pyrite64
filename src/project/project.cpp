@@ -31,9 +31,11 @@ void Project::Project::deserialize(const nlohmann::json &doc) {
   conf.sceneIdOnReset = doc.value("sceneIdOnReset", 1);
 }
 
-Project::Project::Project(const std::string &path)
-  : path{path}, pathConfig{path + "/project.json"}
+Project::Project::Project(const std::string &p64projPath)
+  : pathConfig{p64projPath}
 {
+  path = fs::path(p64projPath).parent_path().string();
+
   auto configJSON = Utils::JSON::loadFile(pathConfig);
   if (configJSON.empty()) {
     throw std::runtime_error("Not a valid project!");

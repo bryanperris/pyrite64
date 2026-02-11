@@ -167,6 +167,13 @@ int main(int argc, char** argv)
     Editor::Main editorMain{ctx.gpu};
     Editor::Scene editorScene{};
 
+    if(!CLI::getProjectPath().empty())
+    {
+      if(!Editor::Actions::call(Editor::Actions::Type::PROJECT_OPEN, CLI::getProjectPath())) {
+        Editor::Noti::add(Editor::Noti::Type::ERROR, "Failed to open project from command line!");
+      }
+    }
+
     // Main loop
     bool done = false;
     while(!done) {

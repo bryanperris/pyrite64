@@ -151,7 +151,8 @@ bool Editor::CreateProjectOverlay::draw()
         projectSafeName.clear();
         projectPath.clear();
 
-        if(Editor::Actions::call(Actions::Type::PROJECT_OPEN, fullPath.string())) {
+        auto configPath = (fullPath / "project.p64proj").string();
+        if(Editor::Actions::call(Actions::Type::PROJECT_OPEN, configPath)) {
           Editor::Noti::add(Editor::Noti::SUCCESS, "Project successfully created!");
           ImGui::CloseCurrentPopup();
         }

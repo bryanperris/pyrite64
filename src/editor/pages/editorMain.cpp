@@ -169,7 +169,7 @@ void Editor::Main::draw()
         if(!Actions::call(Actions::Type::PROJECT_OPEN, path)) {
           Editor::Noti::add(Editor::Noti::ERROR, "Could not open project!");
         }
-      }, true, "Choose Project Folder");
+      }, false, "Choose Project File (.p64proj)");
     }
   }
 
@@ -188,7 +188,7 @@ void Editor::Main::draw()
       midBgPointY - (texBtnTool.getHeight() * 0.8f / 2) - 50
     });
     
-    ImGui::TextColored({1.0f, 0.2f, 0.2f, 1.0f}, warnText);
+    ImGui::TextColored({1.0f, 0.2f, 0.2f, 1.0f}, "%s", warnText);
     ImGui::PopFont();
     
   }
