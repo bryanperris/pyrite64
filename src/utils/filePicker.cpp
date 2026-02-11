@@ -17,6 +17,8 @@ namespace
   constinit std::atomic_bool hasResult{false};
   constinit std::string result{};
 
+  constinit std::vector<SDL_DialogFileFilter> filefilter{};
+
   std::function<void(const std::string&path)> resultUserCb;
 
   void cbResult(void *userdata, const char * const *filelist, int filter) {
@@ -26,7 +28,7 @@ namespace
   }
 }
 
-bool Utils::FilePicker::open(std::function<void(const std::string&path)> cb, bool isDirectory, const std::string &title) {
+bool Utils::FilePicker::open(std::function<void(const std::string&path)> cb, const Options &options) {
   if (isPickerOpen) return false;
 
   resultUserCb = cb;
@@ -34,11 +36,22 @@ bool Utils::FilePicker::open(std::function<void(const std::string&path)> cb, boo
   SDL_SetPointerProperty(props, SDL_PROP_FILE_DIALOG_WINDOW_POINTER, ctx.window);
   //SDL_SetStringProperty(props, SDL_PROP_FILE_DIALOG_LOCATION_STRING, default_location);
   SDL_SetBooleanProperty(props, SDL_PROP_FILE_DIALOG_MANY_BOOLEAN, false);
-  if(!title.empty()) {
-    SDL_SetStringProperty(props, SDL_PROP_FILE_DIALOG_TITLE_STRING, title.c_str());
+  if(!options.title.empty()) {
+    SDL_SetStringProperty(props, SDL_PROP_FILE_DIALOG_TITLE_STRING, options.title.c_str());
   }
+
+  filefilter.clear();
+  for (const auto &f : options.customFilters) {
+    filefilter.push_back({f.name, f.pattern});
+  }
+
+  if(!filefilter.empty()) {
+    SDL_SetPointerProperty(props, SDL_PROP_FILE_DIALOG_FILTERS_POINTER, filefilter.data());
+    SDL_SetNumberProperty(props, SDL_PROP_FILE_DIALOG_NFILTERS_NUMBER, filefilter.size());
+  }
+
   SDL_ShowFileDialogWithProperties(
-    isDirectory ? SDL_FILEDIALOG_OPENFOLDER : SDL_FILEDIALOG_OPENFILE,
+    options.isDirectory ? SDL_FILEDIALOG_OPENFOLDER : SDL_FILEDIALOG_OPENFILE,
     cbResult, nullptr, props
   );
   SDL_DestroyProperties(props);

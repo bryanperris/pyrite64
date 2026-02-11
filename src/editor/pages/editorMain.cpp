@@ -169,7 +169,11 @@ void Editor::Main::draw()
         if(!Actions::call(Actions::Type::PROJECT_OPEN, path)) {
           Editor::Noti::add(Editor::Noti::ERROR, "Could not open project!");
         }
-      }, false, "Choose Project File (.p64proj)");
+      }, {
+        .title="Choose Project File (.p64proj)",
+        .isDirectory = false,
+        .customFilters = {{"Pyrite64 Project", "p64proj"}}
+      });
     }
   }
 
