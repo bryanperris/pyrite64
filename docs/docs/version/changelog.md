@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.0
+
+- Object rotation can now be edited as euler angles
+- Object scaling can now be set to uniform in the editor 
+
 ## v0.5.0
 
 - Migrated documentation to sphinx, added new docs
