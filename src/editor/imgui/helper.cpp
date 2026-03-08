@@ -4,6 +4,7 @@
 */
 #include "helper.h"
 
+#include "imgui_internal.h"
 #include "../../context.h"
 
 namespace
@@ -119,4 +120,13 @@ bool ImTable::addKeybind(const std::string &name, ImGuiKeyChord &chord, ImGuiKey
 
   ImGui::PopID();
   return false;
+}
+
+void ImGui::makeTabVisible(const char* tabName)
+{
+  ImGuiWindow* window = ImGui::FindWindowByName(tabName);
+  if (window == NULL || window->DockNode == NULL || window->DockNode->TabBar == NULL) {
+    return;
+  }
+  window->DockNode->TabBar->NextSelectedTabId = window->TabId;
 }

@@ -13,7 +13,7 @@ namespace Editor
   class AssetsBrowser
   {
     private:
-      int activeTab{0};
+      int activeTab{1};
       std::array<std::string, 4> tabDirs{};
       std::string searchFilter{};
       std::string renamePath{};

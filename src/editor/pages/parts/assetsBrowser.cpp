@@ -436,6 +436,7 @@ void Editor::AssetsBrowser::draw() {
 
     if (clicked) {
       ctx.selAssetUUID = asset.getUUID();
+      ImGui::makeTabVisible("Asset");
     }
     if (isDblClick) {
       if (!Utils::Proc::openFile(asset.path))

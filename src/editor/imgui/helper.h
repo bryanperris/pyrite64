@@ -130,6 +130,7 @@ namespace ImGui
   }
 
   bool rotationInput(glm::quat &quat);
+  void makeTabVisible(const char* tabName);
 }
 
 namespace ImTable
