@@ -185,7 +185,8 @@ namespace {
 
     const auto testAxis = [&v0, &v1, &v2, &box, &lastAxis, &distance](const fm_vec3_t &satAxis)
     {
-      if((satAxis.x + satAxis.y + satAxis.z) == 0.0f) {
+      float sum = (satAxis.x + satAxis.y + satAxis.z);
+      if(fabsf(sum) < 0.0001f) {
         return true;
       }
 
