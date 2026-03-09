@@ -299,6 +299,7 @@ int main(int argc, char** argv)
 
       //printf("Frame Start | Time: %.2fms\n", ImGui::GetIO().DeltaTime * 1000.0f);
       SDL_Event event{};
+      bool closeRequested{false};
       while (SDL_PollEvent(&event))
       {
         //convert pinch events to whole number mouse wheel events to mimic windows
@@ -316,18 +317,12 @@ int main(int argc, char** argv)
 
         ImGui_ImplSDL3_ProcessEvent(&event);
 
-        bool closeRequested = event.type == SDL_EVENT_QUIT;
-        closeRequested = closeRequested || (
+        bool wantsClose = event.type == SDL_EVENT_QUIT;
+        wantsClose = wantsClose || (
           event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED
           && event.window.windowID == SDL_GetWindowID(ctx.window)
         );
-
-        if (closeRequested) {
-          done = confirmCloseWithUnsavedChanges();
-          if (done) {
-            break;
-          }
-        }
+        closeRequested = closeRequested || wantsClose;
 
         if(event.type == SDL_EVENT_WINDOW_MOVED || event.type == SDL_EVENT_WINDOW_RESIZED
           || event.type == SDL_EVENT_WINDOW_RESTORED || event.type == SDL_EVENT_WINDOW_SHOWN) {
@@ -445,6 +440,22 @@ int main(int argc, char** argv)
 
       ImGui::Render();
       scene.draw();
+
+      if (closeRequested) {
+        done = confirmCloseWithUnsavedChanges();
+        if(done)ctx.wantsProjectClose = true;
+      }
+
+      if(ctx.wantsProjectClose)
+      {
+        Editor::UndoRedo::getHistory().clear();
+        delete ctx.project;
+        ctx.project = nullptr;
+        ctx.wantsProjectClose = false;
+        if(closeRequested) {
+          break;
+        }
+      }
 
       ctx.timeCpuTotal = SDL_GetTicksNS() - timeTotal;
 

@@ -10,6 +10,12 @@
 #include "imgui/theme.h"
 
 namespace Editor {
+  Window::~Window()
+  {
+    if(icon) {
+      SDL_DestroySurface(icon);
+    }
+  }
 
   bool Window::init(const std::string& title) {
     loadState();
@@ -24,7 +30,8 @@ namespace Editor {
       SDL_MaximizeWindow(sdlWindow);
     }
 
-    SDL_SetWindowIcon(sdlWindow, IMG_Load("data/img/windowIcon.png"));
+    icon = IMG_Load("data/img/windowIcon.png");
+    SDL_SetWindowIcon(sdlWindow, icon);
     SDL_ShowWindow(sdlWindow);
     
     return true;

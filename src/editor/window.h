@@ -12,8 +12,11 @@ namespace Editor {
   };
 
   class Window {
+    private:
+      SDL_Surface *icon{};
     public:
       Window() = default;
+      ~Window();
 
       bool init(const std::string& title);
       void trackGeometry();

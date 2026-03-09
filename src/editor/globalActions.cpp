@@ -42,9 +42,7 @@ namespace Editor::Actions
      });
 
     registerAction(Type::PROJECT_CLOSE, [](const std::string&) {
-      UndoRedo::getHistory().clear();
-      delete ctx.project;
-      ctx.project = nullptr;
+      ctx.wantsProjectClose = true;
       return true;
     });
 

@@ -13,6 +13,10 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
         "Run: cmake --preset <name>")
 endif()
 
+# add_compile_options(-fsanitize=address)
+# add_link_options(-fsanitize=address)
+
+
 # set(SDL_SHARED ON)
 # set(SDL_STATIC ON)
 
