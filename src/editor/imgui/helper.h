@@ -485,7 +485,7 @@ namespace ImTable
     } else if constexpr (std::is_same_v<T, glm::vec3>) {
       return ImGui::InputFloat3("##", glm::value_ptr(*value));
     } else if constexpr (std::is_same_v<T, glm::vec4>) {
-      return ImGui::ColorEdit4("##", glm::value_ptr(*value), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+      return ImGui::ColorEdit4("##", glm::value_ptr(*value), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaPreviewHalf);
     } else if constexpr (std::is_same_v<T, glm::quat>) {
       ImGui::rotationInput(*value);
     } else if constexpr (std::is_same_v<T, glm::ivec2>) {
@@ -618,7 +618,7 @@ namespace ImTable
     if(disabled)ImGui::BeginDisabled();
     bool changed = false;
     if (withAlpha) {
-      changed = ImGui::ColorEdit4(name.c_str(), glm::value_ptr(color), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+      changed = ImGui::ColorEdit4(name.c_str(), glm::value_ptr(color), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaPreviewHalf);
     } else {
       changed = ImGui::ColorEdit3(name.c_str(), glm::value_ptr(color), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
     }
